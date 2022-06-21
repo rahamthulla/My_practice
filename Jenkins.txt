@@ -1,0 +1,251 @@
+//Declarative pipeline begins with pipeline
+pipeline{
+
+}
+==============================================
+//Scripted pipeline begins with node
+node{
+
+}
+==============================================
+Jenkins Pipeline Job
+1. Checkout Code From SCM
+2. Build Project Using Maven
+3. Deploy War on Tomcat(Install SSH Agent plugin)
+4. Send Email Notifications
+	a. Email
+	b. slack
+	c. Microsoft teams
+	d. Any communucator
+5. Install slack plugin in Jenkins
+	a. COnfigure slack plugin Globally Before Using it
+	b. Under job level configuration integrate with slack
+	
+Declarative "Post Stage"
+	a. This declarative is used to do post build action
+	b. It provides various blocks like success, failure,etc.
+Jenkkins Global Variables
+	1. Jenkins will setup create global variables which can be used in our jobs
+		a. pipeline
+		b. env
+		c. params
+		d. scm
+		e. correntBuild
+		f. Etc.
+
+Using Enveronment variable in pipeline Job
+
+Click on New Item => Enter name ci-cd-pipeline => chose pipeline => pipeline 
+
+Two way we can get the code
+1. Pipeline Script
+2. Pipeline Script from SCM
+
+==================================================================
+1. Pipeline Script
+//Declarative pipeline begins with pipeline
+pipeline{
+    // This is nodes
+    agent any
+    tools {
+        // This Adds maven to PATH
+        maven 'maven'
+    }
+	stages{
+	    stage("SCM Checkout"){
+		    steps{
+                //git 'https://github.com/javahometech/my-app'
+                git credentialsId: 'b2db77a0-7388-44bf-921d-6b8e277ba333', url: 'https://github.com/rahamthulla/Maven_Project'
+			}
+		}
+		
+	    stage("Maven Build"){
+		    steps{
+			    sh 'mvn clean package'
+			}
+	    }
+	    
+	    stage("Dev-Deploye"){
+		    steps{
+			    sshagent(["tomcat-dev"]){
+		        // Copy War file to tomcat weapps location
+		        // sh "scp target/weapp*.war uname@ip:opt/tomcat"
+				// sh "ssh ec2-user@172.10.23.132 /opt/tomcat8/bin/shutdown.sh"
+				// sh "ssh ec2-user@172.10.23.132 /opt/tomcat8/bin/startup.sh"
+			    echo 'Deployed.........'
+				}
+			}
+	    }
+	}
+	post {
+	    success {
+		    slockSend color: 'good', message: "Job: ${env, JOB_Name} is successfully build, Build URL is ${env, Build_URL}"
+		}
+	}
+}
+===========================================
+//Declarative pipeline begins with pipeline
+pipeline{
+    agent any
+	    stages{
+		    stage('Build'){
+			    steps{
+				    echo "Building the Project.........."
+				}
+			}
+			stage('Test'){
+			    steps{
+				    echo "Testing the Project.........."
+				}
+			}
+			stage('Deploy'){
+			    steps{
+				    echo "Deploying the Project.........."
+				}
+			}
+        }
+}
+===================================================
+Jenkins Parameterized jobs
+	1. Using parameterized jobs we can pass different inputs at runtime.
+	2. 
+
+AppEnv
+dev
+qa
+prod
+
+pipeline{
+    agent any
+    parameters {
+        choice choices: ['dev', 'qa', 'prod'], description: 'Chose the environment to Deploy', name: 'AppEnv'
+    }
+	stages{
+	    stage("SOCM"){
+		    steps{
+		        // Define the global variables like below
+		        echo "User selected ${params.AppEnv}"
+			}
+		}
+	}
+}
+==============================================
+Using Environment Variables
+pipeline{
+    agent any
+	//Environment Variables 
+    environment {
+        My_App = "2.0"
+    }
+    stages{
+        stage("Env_Demo"){
+            steps{
+                echo "This is env variable job ${env.My_App}"
+            }
+        }
+    }
+}
+==============================================
+def name = "java Home"
+pipeline{
+    agent any
+
+    stages{
+        stage("Welcome"){
+            steps{
+                script{
+                    //def name = "java Home" above or below any one you can use.
+                    hello(name)
+                }
+            }
+        }
+    }
+}
+
+def hello(name){
+    echo "Hi ${name}, Welcome to Jenkins"
+}
+===================================
+// Declare master and slave nodes to run the specific stage
+pipeline{
+    //agent {
+    //    label 'CM || CM_16'
+    //}
+    agent none
+    
+    stages{
+        stage("Master"){
+           // agent{
+             //   label 'master'
+            //}
+            steps{
+                echo "This is master node"
+            }
+        }
+        stage("Slave"){
+            //agent{
+              //  label 'slave'
+            //}
+            steps{
+                echo "This is Slave"
+            }
+        }
+    }
+}
+====================or ========================
+// Run job specific agent
+// Declare master and slave nodes to run the specific stage
+pipeline{
+    agent none
+    
+    stages{
+        stage("Master"){
+            agent{
+                label 'master'
+            }
+            steps{
+                echo "This is master node"
+            }
+        }
+        stage("Slave"){
+            agent{
+                label 'slave'
+            }
+            steps{
+                echo "This is Slave"
+            }
+        }
+    }
+}
+===================================================
+The real time scenario is running maven build and sonar analysis is parallel
+pipeline{
+    agent any
+	stages{
+	    stage("Parallel Demo"){
+		    steps{
+			    parallel(
+				maven:{
+				    echo "This is maven build"
+					},
+				sonar:{
+				    echo "This is sonar analysis"
+					}
+				)
+			}
+		}
+	}
+}
+===================================================
+Jenkins Shared Libraries
+1. Using a shared library we can build custom steps and they can be reused across jobs
+2. Shared library is kept in git or any SCM tool
+
+Deploying new Shared Library
+1. Create new git repository
+2. Add code to the repository
+3. COnfigure shared library in jenkins
+	a. Jenkins -> configure system -> Global Shared Libraries -> Add 
+	b. Choose retriecval method modern scm and give name and git url
+4. Using Shared libraries in jenkins job
+
