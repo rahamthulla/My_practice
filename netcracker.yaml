@@ -1,0 +1,35 @@
+---
+#1. Archive log files older than 7 days
+#2. Delete a log files older than 14 days
+#3. Generate a report of deleted files and FS usage on local ansible host
+- hosts: demo
+  become: True
+  tasks:
+    - name: find all files that are older than 7 days
+      find:
+      paths: /var/logs.tar
+      file_type: file
+      age: 7
+      recursive: yes
+      register: filesOlderThan7
+    - name: compress all the files in tar.gz
+      archive: path="{{ item.path }}"
+      dest: /tmp/test.tar.gz
+      format: gz
+      with_items: "{{ files.files }}"
+    - name: Check all files
+      find: paths=/myfiles
+            file_type=file
+            age=14
+            age_stamp=mtime
+      register: files
+    - name: remove older than 14
+      file:
+        path: "{{ item.path }}"
+        state: absent
+        with_items: "{{ (files.files) }}"
+    - name: Copy Deleted files
+      file:
+        path: /temp/myfiles
+        state: file
+        with_items: "{{ (files.files) }}"
