@@ -1,0 +1,2254 @@
+
+######################### ⭐ Basic Dataflow Interview Questions — With Answers #########################
+BigQuery:
+BigQuery is the data warehouse.
+
+Partitioning:
+splits a BigQuery table into smaller pieces called partitions based on a column (usually a date).
+SELECT *
+FROM orders
+WHERE order_date = '2024-01-01'
+
+Clustering: 
+Clustering sorts data inside partitions based on up to 4 columns.
+SELECT *
+FROM orders
+WHERE customer_id = 101
+
+_______________________________________
+1. What is Google Cloud Dataflow?
+Dataflow is a fully managed service for running Apache Beam pipelines for both batch and streaming data processing.
+It handles:
+•	Autoscaling
+•	Fault tolerance
+•	Worker provisioning
+•	Parallel data processing
+________________________________________
+2. What is Apache Beam and how is it related to Dataflow?
+Apache Beam is an open-source unified programming model for batch and streaming pipelines.
+•	You write your pipeline using Beam (Python/Java)
+•	You run it on Dataflow (or other runners like Spark, Flink)
+Dataflow = Runner
+Beam = Programming API
+________________________________________
+3. What is the difference between batch and streaming pipelines in Dataflow?
+Batch	Streaming
+Processes bounded datasets	Processes unbounded (continuous) data
+Runs once	Runs continuously
+No windowing needed	Requires windowing, watermarks, triggers
+________________________________________
+4. What is a PCollection in Dataflow?
+A PCollection is a distributed dataset in Beam/Dataflow.
+It can contain:
+•	One item
+•	Millions of items
+•	Infinite streaming data
+Equivalent to an RDD in Spark or a table in SQL.
+________________________________________
+5. What is a PTransform?
+A PTransform is a step in the pipeline (a processing operation).
+Examples:
+•	ParDo → element-wise processing
+•	GroupByKey
+•	Combine
+•	Filter
+•	Map
+________________________________________
+6. What languages does Dataflow support?
+•	Python
+•	Java
+(Go and SQL support are emerging in limited functionality.)
+________________________________________
+7. What is autoscaling in Dataflow?
+Dataflow automatically adjusts the number of worker VMs based on:
+•	Data volume
+•	CPU usage
+•	Backlogs
+•	Pipeline bottlenecks
+Saves cost and ensures high performance.
+
+Autoscaling in Google Cloud Dataflow is a feature that automatically adjusts the number of worker machines running your pipeline based on the current workload. It helps optimize performance, cost, and resource usage without manual intervention.
+________________________________________
+8. What is a Worker in Dataflow?
+A worker is a VM instance that processes part of the pipeline.
+Dataflow can automatically:
+•	Add more workers
+•	Remove idle workers
+•	Restart failed workers
+________________________________________
+9. What are Dataflow Templates?
+Pre-built or user-defined pipelines that can be executed without writing code each time.
+Useful for:
+•	Scheduled ETL
+•	Reusability
+•	Parameterized jobs (Parameterized jobs (often used in Dataflow, Airflow, CI/CD systems, ETL tools, etc.) are jobs where you can pass input values (parameters) at runtime instead of hard-coding them in the code or configuration.)
+________________________________________
+10. What is the difference between Flex Templates and Classic Templates?
+Classic Templates
+•	Limited flexibility
+•	Pre-compiled pipeline
+•	Configured only at runtime
+Flex Templates
+•	Allow custom code, dependencies, Docker images
+•	Best for complex jobs
+•	Recommended for production
+________________________________________
+11. What is the Dataflow Shuffle?
+The Shuffle is Dataflow’s distributed data exchange system used for:
+•	GroupByKey
+•	Combine
+•	Join operations
+It improves:
+•	Performance
+•	Scalability
+•	Fault tolerance
+________________________________________
+12. What is Windowing in Dataflow?
+Windowing groups streaming data into finite chunks based on time:
+•	Fixed windows
+•	Sliding windows
+•	Session windows
+Required for processing unbounded data streams.
+________________________________________
+13. What is a Watermark in Dataflow?
+A watermark represents the system's estimate of how far along it is in event-time data.
+It tells the pipeline when it can safely close windows.
+Example:
+“Data older than this watermark is unlikely to arrive.”
+________________________________________
+14. What is a Trigger in Dataflow?
+Triggers define when the results for a window should be emitted.
+Examples:
+•	After watermark
+•	After processing-time delay
+•	After a certain number of elements
+Used commonly in late-arriving data scenarios.
+________________________________________
+15. What is Event Time vs Processing Time?
+Event Time
+When the event actually happened OR timestamps in the data (e.g., device timestamp).
+Processing Time
+When the event is processed in Dataflow.
+Streaming pipelines prefer event time for accuracy.
+________________________________________
+16. What is Checkpointing?
+Checkpointing saves pipeline progress so it can restart from a known state.
+In Dataflow:
+•	State is maintained automatically
+•	Workers can fail and restart with no data loss
+________________________________________
+17. How does Dataflow ensure exactly-once processing?
+Using:
+•	Beam’s fault-tolerant execution model
+•	Message replay & deduplication
+•	Idempotent sinks (e.g., BigQuery)
+•	Stateful processing
+This ensures each event is written once even in retries.
+________________________________________
+18. What is the Dataflow Monitoring UI used for?
+To monitor:
+•	Worker logs
+•	Debugging pipeline failures
+•	Autoscaling activity
+•	Throughput, latency
+•	Watermarks
+•	Cost metrics
+________________________________________
+19. What is a Side Input in Dataflow?
+A small dataset that is broadcast to all workers for use inside a transform.
+Example:
+•	Configuration file
+•	Lookup table
+•	Parameter list
+________________________________________
+20. What sinks and sources does Dataflow commonly support?
+Common Inputs (Sources)
+•	Pub/Sub
+•	Cloud Storage
+•	BigQuery
+•	Kafka (via connectors)
+Common Outputs (Sinks)
+•	BigQuery
+•	Pub/Sub
+•	Cloud Storage
+•	Bigtable
+•	Datastore / Firestore
+
+1. Dataflow = Serverless ETL for Streaming + Batch
+•	Write pipelines using Apache Beam
+•	Best suited for real-time processing
+•	Automatically handles scaling, workers, failures
+•	No cluster management
+________________________________________
+2. Dataproc = Managed Hadoop/Spark Clusters
+•	You control Spark, Hadoop, Hive, Pig, Presto
+•	Useful for existing Spark/Hadoop workloads
+•	Clusters start in ~90 seconds
+•	Not serverless (you manage cluster size & jobs)
+________________________________________
+3. Data Fusion = GUI-based ETL (No-Code / Low-Code)
+•	Drag-and-drop pipelines
+•	Built on the CDAP open-source framework
+•	Integrates with BigQuery, GCS, Dataproc, Dataflow
+•	Good for business users + ETL teams
+________________________________________PUB
+%%oracle -s dmr_ro
+select * from sd_batch.syncpublishjob where
+--select * from sd_batch.syncsubscribejob where
+publishid in (423042)
+--publishid between  426638 and 426658
+--objectdesc like '%.set_txn_rec_bank'
+--and holdflag in (0,66)
+--and ignoreflag in (0,1)
+order by publishjobid desc
+fetch first 5 rows only
+
+publishjobid	publishid	systemcd	objectdesc	keydesc	deltadesc	objectcheckval	startdeltadescval	enddeltadescval	deltabaseobjectdesc	deltatypecd	adddeltacalcval	checkddlstartts	checkddltrynum	checkddlstatuscd	checkddlstatusts	builddeltastartts	builddeltatrynum	builddeltastatuscd	builddeltastatusts	builddeltacheckval	extractddlstartts	extractddltrynum	extractddlstatuscd	extractddlstatusts	extractdatastartts	extractdatatrynum	extractdatastatuscd	extractdatastatusts	extractdatacheckval	publishfinalstartts	publishfinaltrynum	publishfinalstatuscd	publishfinalstatusts	ignoreflag	messagetext	insertts	updatets	srclastrefreshts	priority	utilitycd	delta_size	builddeltahashval	skipvalidation	hadoopsrctype	categorycd	isencrypted	delimiter	maxvolume	tptexport	instancenumber	masternode	validatedesc	validatelag	validatedesctype	checkdeltadescval	ggenabled	ddlchksum	ddlgen	stagedb	customddl	customsql	skiprangevalidation	rangelag	rangecount	deltaparallelcnt	extractprallelcnt	activeactive	delta_log	extract_log	deltaout	hadoopcdcts	orahwmcustomsql	triggerdataretentiondays	slaapplicationname	slatype	deltasplitinterval
+
+ Active           - 0
+ Temp Hold        - 6
+ Permanent Hold   - 47
+ Released/Enabled - 0
+ Source converted - 66
+ Src updated      - 99
+ One time         - 500
+ Order Isert      - 109
+ 
+ssh -o ServerAliveInterval=30 10.174.64.188
+Release : python hold_release_jobs.py -r -j None -p 403334 -f6 -d all
+
+Manual Run :python update_replication_properties.py -a pub -p 410549 -pr scheduleid -vl 99
+
+Truncate :bq query --use_legacy_sql=false "truncate table pypl-edw-test.pp_tables.dw_customer_map"
+
+bq query --nouse_legacy_sql "select max(cre_ts) from pp_tables.dw_ppcard_txn"
+
+bq query --nouse_legacy_sql -n 1000 "select max(time_updated),count(*) from pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx"
+
+python ignore_restore_jobs.py -a pub -p 92262 -j 52513360 -i 8 -v
+
+gsutil ls gs://pypl-bkt-prd-row-stg-edw/simba/pp_sd_hist/querytype_details
+
+-------------------------FL tables count not matching---------------------------------------------- 
+Check the failures "extractdatastatuscd" in "Pub&Sub jobs" run the below Restore query:
+python ignore_restore_jobs.py -a pub -p <publishid> -j <publishjobid> -i 8 -v
+python ignore_restore_jobs.py -a sub -p <publishid> -j <subscribejobid> -i 8 -v -d gcs/stampy
+
+Other than FL tables needs to check 
+1. delete source 
+2. write operation in which domain, (if write operation happens inform to the user for revert)
+3. else we have to revert and do incremental from specific point
+-------------------To get into docker containers-----------------------------------------------
+docker ps
+docker exec -it 3bb5c65bdf8d /bin/bash
+cd loadsqlgenerator/service
+python3 bq_onboard_service.py -p 410540 -g None
+
+###################################Big Data questions #################################
+A partition is a way of dividing data into smaller, manageable parts to improve performance, scalability, and organization.
+👉 Partition = splitting a large dataset or storage into logical sections.
+
+A cluster is a group of multiple computers (nodes) that work together as a single unified system to improve performance, reliability, and scalability.
+👉 A cluster = many computers connected together to act like one powerful system.
+
+1. What is Big Data? Give examples.
+Big Data refers to data that is too large, fast, or complex to be handled by traditional systems.
+Examples:
+•	Social media data
+•	Sensor/IoT data
+•	Clickstream logs
+•	Financial transactions
+________________________________________
+2. What are the 5 V’s of Big Data?
+1.	Volume – large amount of data
+2.	Velocity – fast data generation
+3.	Variety – structured, semi-structured, unstructured
+4.	Veracity – data quality
+5.	Value – insights derived from data
+________________________________________
+3. What are structured, unstructured, and semi-structured data?
+•	Structured: organized into rows/columns (e.g., SQL tables)
+•	Unstructured: no fixed format (videos, images, text)
+•	Semi-structured: flexible schema (JSON, XML, logs)
+________________________________________
+4. Difference between OLTP and OLAP.
+OLTP	OLAP
+Transactional	Analytical
+Small, frequent queries	Large aggregations
+Real-time operations	Historical analysis
+________________________________________
+5. What is distributed computing?
+A method where computing tasks are split across multiple nodes to improve speed, reliability, and scalability.
+________________________________________
+6. What is MapReduce?
+A programming model consisting of:
+•	Map: parallel processing of chunks
+•	Reduce: aggregation of results
+Used by Hadoop for large-scale batch processing.
+________________________________________
+7. What is a Data Lake?
+A Data Lake is a centralized storage repository that holds raw, unprocessed data in its native format.
+________________________________________
+8. What is fault tolerance in Big Data systems?
+If a node fails, the system continues working using replication or recomputation.
+________________________________________
+9. What is horizontal vs vertical scaling?
+•	Vertical: increasing power of one machine
+•	Horizontal: adding more machines → Big Data systems use this
+________________________________________
+10. What is batch vs streaming data processing?
+•	Batch: processes large chunks at intervals
+•	Streaming: processes data continuously in real time
+________________________________________
+🔥 INTERMEDIATE BIG DATA QUESTIONS — WITH ANSWERS
+________________________________________
+1. What is Hadoop? What are its components?
+Hadoop is an open-source Big Data processing framework consisting of:
+•	HDFS – storage
+•	MapReduce – processing
+•	YARN – resource management
+________________________________________
+2. What is HDFS and why is it good for Big Data?
+HDFS = Hadoop Distributed File System
+•	Stores huge files across clusters
+•	Fault tolerant (replication)
+•	Optimized for large sequential reads
+________________________________________
+3. What is YARN?
+YARN = Yet Another Resource Negotiator
+Manages:
+•	Cluster resources
+•	Job scheduling
+•	Worker allocation
+________________________________________
+4. What is Apache Spark and why is it faster than Hadoop?
+Spark is a distributed computing engine using in-memory processing, making it 10–100x faster than MapReduce.
+Spark features:
+•	RDDs
+•	DataFrames
+•	Streaming
+•	SQL
+•	MLlib
+________________________________________
+5. Spark RDD vs DataFrame vs Dataset.
+Feature	RDD	DataFrame	Dataset
+Type	Low-level API	Structured API	Strongly-typed API
+Performance	Slowest	Fastest	Medium
+Use Case	Complex logic	SQL-like operations	Compile-time safety
+________________________________________
+6. What is a shuffle in Spark?
+Redistribution of data across nodes for operations like:
+•	groupBy
+•	reduceBy
+•	joins
+Shuffles are expensive and cause performance bottlenecks.
+________________________________________
+7. What is partitioning in Spark?
+Splitting data across executors for parallel processing.
+Good partitioning = better performance.
+________________________________________
+8. Explain Spark’s lazy evaluation.
+Transformations are not executed immediately — Spark creates a DAG and executes only when an action is called.
+________________________________________
+9. What is checkpointing in Spark?
+Saving RDD/DataFrame state to stable storage to recover from failures.
+________________________________________
+10. What is Apache Kafka?
+Kafka is a distributed streaming platform for:
+•	High-throughput messaging
+•	Event streaming
+•	Log aggregation
+________________________________________
+🚀 ADVANCED BIG DATA QUESTIONS — WITH ANSWERS
+________________________________________
+1. Hadoop vs Spark?
+Feature	Hadoop	Spark
+Processing	Disk-based	In-memory
+Speed	Slow	Fast
+Workloads	Batch	Batch + Streaming
+APIs	MapReduce	SQL, ML, Graph, Streaming
+________________________________________
+2. Common performance issues in Spark?
+•	Too many shuffles
+•	Data skew
+•	Improper partitioning
+•	No caching
+•	Large joins
+________________________________________
+3. What is data skew and how do you fix it?
+Data skew = uneven distribution of keys, causing slow tasks.
+Fixes:
+•	Salting keys
+•	Using broadcast join
+•	Custom partitioners
+________________________________________
+4. Explain exactly-once processing.
+Guarantee that each event affects state only once, even with retries. Achieved using:
+•	Idempotent sinks
+•	Checkpointing
+•	Stateful processing
+________________________________________
+5. What is Lambda Architecture vs Kappa Architecture?
+Lambda
+•	Batch + streaming layers
+•	Complex
+Kappa
+•	Streaming-only
+•	Simpler, scalable
+________________________________________
+6. How do you design a high-throughput streaming pipeline?
+Use:
+•	Kafka / Pub/Sub
+•	Spark Structured Streaming / Dataflow
+•	Windowing + Watermarks
+•	Scaling via autoscaling
+•	NoSQL DB / BigQuery sink
+________________________________________
+7. What is idempotency?
+Operation that produces same output even if repeated.
+Important for streaming with retries.
+________________________________________
+8. What is a watermark?
+Represents system’s idea of event-time progress to handle late-arriving data.
+________________________________________
+9. When should you use NoSQL databases?
+When you need:
+•	High scalability
+•	Low latency
+•	Flexible schema
+Examples: Cassandra, MongoDB, HBase.
+________________________________________
+10. Explain CAP theorem.
+A distributed database can provide only two of the following at a time:
+•	Consistency
+•	Availability
+•	Partition tolerance
+________________________________________
+🧠 SCENARIO-BASED QUESTIONS — WITH ANSWERS
+________________________________________
+1. You need to process millions of events/sec. Design the pipeline.
+Answer:
+Use a distributed streaming architecture:
+•	Ingestion → Kafka / Pub/Sub
+•	Processing → Spark Streaming / Dataflow
+•	Storage → BigQuery / Cassandra / HBase
+•	Monitoring → Logging + Metrics
+________________________________________
+2. Your Spark job is slow. How do you optimize it?
+Answer:
+•	Identify skew using UI
+•	Use broadcast joins
+•	Increase partitions
+•	Cache hot DataFrames
+•	Reduce shuffle operations
+•	Use correct file formats (Parquet/ORC)
+________________________________________
+3. You generate 1 TB of JSON data daily. How do you store and query it?
+Answer:
+Storage:
+•	Store raw data in GCS/S3/HDFS
+•	Convert to Parquet for compression + speed
+Query:
+•	Use BigQuery, Athena, Spark SQL
+________________________________________
+4. How to handle late-arriving streaming data?
+Answer:
+Use:
+•	Event-time processing
+•	Watermarks
+•	Windowing
+•	Allowed lateness
+•	Triggers
+________________________________________
+5. Design a real-time fraud detection system.
+Answer:
+•	Ingest events via Pub/Sub or Kafka
+•	Real-time processing using Spark/Flink/Dataflow
+•	Stateful ML model scoring
+•	Low-latency store (Redis / Bigtable)
+•	Alerts dashboard
+
+##############Bigquery Essentials:
+Enterprise Datawarehouse (edw) : Columar Based Storage
+
+Architecture 
+Dremel : Execution Engine
+Borg : Compute
+colossus : Storage - Colossus also handles replication, recovery (when disks crash) and distributed management(so there is no single point of failure).
+
+Ways to access Bigquery:
+1.GCP console
+2.CLI
+3.API
+4.Client Libraries like python, java etc
+
+bq is utility Command -  cp ,mk, rm --- there n numer of Flags more details - login into vm run bq 
+
+USAGE: bq.py [--global_flags] <command> [--command_flags] [args]
+
+Any of the following commands:
+Examples:
+                       bq add-iam-policy-binding \\
+                       --member='user:myaccount@gmail.com' \\
+                       --role='roles/bigquery.dataViewer' \\
+                       table1
+                       bq add-iam-policy-binding \\
+                       --member='serviceAccount:my.service.account@my-domain.com' \\
+                       --role='roles/bigquery.dataEditor' \\
+                       project1:dataset1.table1
+                       bq add-iam-policy-binding \\
+                       --member='allAuthenticatedUsers' \\
+                       --role='roles/bigquery.dataViewer' \\
+                       --project_id=proj -t ds.table1
+Examples:
+                       bq cancel job_id  # Requests a cancel and waits until the job is done.
+                       bq --nosync cancel job_id  # Requests a cancel and returns immediately.
+                       
+Examples:
+                       bq cp dataset.old_table dataset2.new_table
+Examples:
+                       bq extract ds.table gs://mybucket/table.csv
+                       bq extract -m ds.model gs://mybucket/model
+                       Arguments:
+                       
+Examples:
+                       bq get-iam-policy ds.table1
+                       bq get-iam-policy --project_id=proj -t ds.table1
+                       bq get-iam-policy proj:ds.table1
+Examples:
+                       bq head dataset.table
+                       bq head -j job
+                       bq head -n 10 dataset.table
+                       bq head -s 5 -n 10 dataset.table
+
+Examples:
+                       bq load ds.new_tbl ./info.csv ./info_schema.json
+                       bq load ds.new_tbl gs://mybucket/info.csv ./info_schema.json
+                       bq load ds.small gs://mybucket/small.csv name:integer,value:string
+                       bq load ds.small gs://mybucket/small.csv field1,field2,field3
+Examples:
+                       bq ls
+                       bq ls -j proj
+                       bq ls -p -n 1000
+                       bq ls mydataset
+                       bq ls -a
+                       bq ls -m mydataset
+                       bq ls --routines mydataset
+                       bq ls --row_access_policies mytable (requires whitelisting)
+                       bq ls --filter labels.color:red
+                       bq ls --filter 'labels.color:red labels.size:*'
+                       bq ls --transfer_config --transfer_location='us'
+                       --filter='dataSourceIds:play,adwords'
+                       bq ls --transfer_run --filter='states:SUCCESSED,PENDING'
+                       --run_attempt='LATEST' projects/p/locations/l/transferConfigs/c
+                       bq ls --transfer_log --message_type='messageTypes:INFO,ERROR'
+                       projects/p/locations/l/transferConfigs/c/runs/r
+                       bq ls --capacity_commitment --project_id=proj --location='us'
+                       bq ls --reservation --project_id=proj --location='us'
+                       bq ls --reservation_assignment --project_id=proj --location='us'
+                       bq ls --reservation_assignment --project_id=proj --location='us'
+Examples:
+                       bq mk new_dataset
+                       bq mk new_dataset.new_table
+                       bq --dataset_id=new_dataset mk table
+                       bq mk -t new_dataset.newtable name:integer,value:string
+                       bq mk --view='select 1 as num' new_dataset.newview
+                       (--view_udf_resource=path/to/file.js)
+                       bq mk --materialized_view='select sum(x) as sum_x from dataset.table'
+                       new_dataset.newview
+                       bq mk -d --data_location=EU new_dataset
+Examples:
+                       bq mkdef 'gs://bucket/file.csv' field1:integer,field2:string 
+
+Examples:
+                       bq partition dataset1.sharded_ dataset2.partitioned_table
+Examples:
+                       bq query 'select count(*) from publicdata:samples.shakespeare'
+Examples:
+                       bq remove-iam-policy-binding \\
+                       --member='user:myaccount@gmail.com' \\
+                       --role='roles/bigquery.dataViewer' \\
+                       table1
+                       bq remove-iam-policy-binding \\
+                       --member='serviceAccount:my.service.account@my-domain.com' \\
+                       --role='roles/bigquery.dataEditor' \\
+                       project1:dataset1.table1
+                       bq remove-iam-policy-binding \\
+                       --member='allAuthenticatedUsers' \\
+                       --role='roles/bigquery.dataViewer' \\
+                       --project_id=proj -t ds.table1
+Examples:
+                       bq rm ds.table
+                       bq rm -m ds.model
+                       bq rm --routine ds.routine
+                       bq rm -r -f old_dataset
+                       bq rm --transfer_config=projects/p/locations/l/transferConfigs/c
+                       bq rm --connection --project_id=proj --location=us con
+                       bq rm --capacity_commitment proj:US.capacity_commitment_id
+                       bq rm --reservation --project_id=proj --location=us reservation_name
+ Examples:
+                       bq set-iam-policy ds.table1 /tmp/policy.json
+                       bq set-iam-policy --project_id=proj -t ds.table1 /tmp/policy.json
+                       bq set-iam-policy proj:ds.table1 /tmp/policy.json
+Examples:
+                       bq show -j <job_id>
+                       bq show dataset
+                       bq show [--schema] dataset.table
+                       bq show [--view] dataset.view
+                       bq show [--materialized_view] dataset.materialized_view
+                       bq show -m ds.model
+                       bq show --routine ds.routine
+                       bq show --transfer_config projects/p/locations/l/transferConfigs/c
+                       bq show --transfer_run projects/p/locations/l/transferConfigs/c/runs/r
+                       bq show --encryption_service_account
+                       bq show --connection --project_id=project --location=us connection
+                       bq show --capacity_commitment project:US.capacity_commitment_id
+                       bq show --reservation --location=US --project_id=project reservation_name
+Examples:
+                       bq truncate project_id:dataset
+                       bq truncate --overwrite project_id:dataset --timestamp 123456789
+                       bq truncate --skip_fully_replicated_tables=false project_id:dataset
+Examples:
+                       bq update --description "Dataset description" existing_dataset
+                       bq update --description "My table" existing_dataset.existing_table
+                       bq update --description "My model" -m existing_dataset.existing_model
+                       bq update -t existing_dataset.existing_table name:integer,value:string
+Examples:
+                       bq wait # Waits forever for the currently running job.
+                       bq wait job_id  # Waits forever
+                       bq wait job_id 100  # Waits 100 seconds
+                       bq wait job_id 0  # Polls if a job is done, then returns immediately.
+                       # These may exit with a non-zero status code to indicate "failure":
+                       bq wait --fail_on_error job_id  # Succeeds if job succeeds.
+                       bq wait --fail_on_error job_id 100  # Succeeds if job succeeds in 100 sec.
+					   
+################################### GCP #################################
+🔰 BASIC GCP QUESTIONS — 1-LINE ANSWERS
+1.	GCP → Google’s cloud platform offering compute, storage, networking, and analytics services.
+2.	Compute services → Compute Engine (VMs), GKE, Cloud Run, App Engine.
+3.	Compute Engine vs App Engine → VMs vs serverless app hosting.
+4.	Cloud Storage → Durable, scalable object storage.
+5.	GCP Project → Container for resources, billing, and IAM.
+6.	IAM roles → Control who can access what.
+7.	VPC → Private virtual network for resources.
+8.	Regions & zones → Region = area; zone = datacenter.
+9.	Cloud Shell → Browser-based terminal with GCP tools.
+10.	Cloud Functions → Serverless event-driven functions.
+________________________________________
+⚙️ INTERMEDIATE GCP QUESTIONS — 1-LINE ANSWERS
+11.	Cloud SQL vs BigQuery vs Firestore → OLTP DB vs analytics warehouse vs NoSQL.
+12.	Preemptible VM → Cheap VM that may shut down anytime.
+13.	Stackdriver → GCP's monitoring and logging suite.
+14.	GKE → Managed Kubernetes clusters.
+15.	GKE autoscaling → Auto-adjusts nodes or pods.
+16.	Service accounts → Identities for apps/services, not users.
+17.	Pub/Sub → Serverless messaging/event ingestion system.
+18.	Cloud Spanner → Globally distributed relational DB.
+19.	Deployment Manager → Infrastructure-as-code tool.
+20.	Firewall rules → Control traffic to/from VPC resources.
+________________________________________
+🚀 ADVANCED GCP QUESTIONS — 1-LINE ANSWERS
+21.	VPC Peering → Private VPC-to-VPC connection.
+22.	Shared VPC → Multiple projects share a central VPC.
+23.	Anthos → Hybrid/multi-cloud Kubernetes platform.
+24.	Internal vs External LB → Private vs internet-facing.
+25.	GCP Load Balancer → Global, anycast, autoscaling load balancer.
+26.	Cloud CDN → Global caching for faster content delivery.
+27.	Cloud KMS → Key management for encryption.
+28.	Security → IAM, encryption, VPC SC, audit logs.
+29.	Billing/Budgets → Track and alert on spending.
+30.	Cloud Interconnect → Private dedicated on-prem to GCP link.
+________________________________________
+🧠 DATA ENGINEERING GCP QUESTIONS — 1-LINE ANSWERS
+31.	BigQuery → Serverless analytics data warehouse.
+32.	Dataflow → Serverless batch + streaming ETL (Apache Beam).
+33.	Dataproc → Managed Hadoop/Spark clusters.
+34.	Dataflow vs Dataproc vs Data Fusion → Serverless ETL vs Spark clusters vs no-code ETL.
+35.	Pub/Sub delivery → At-least-once via retries + ACKs.
+36.	Batch vs Streaming → Bounded vs unbounded data.
+37.	Cloud Composer → Managed Airflow for orchestration.
+38.	Partitioning/Clustering → Reduce scan cost + improve performance.
+39.	BigQuery ML → ML models built directly using SQL.
+40.	Cloud Storage vs HDFS → Managed object storage vs distributed file system.
+________________________________________
+🏗 SECURITY & NETWORKING — 1-LINE ANSWERS
+41.	IAM role types → Primitive, predefined, custom.
+42.	Service account impersonation → Temporary privilege without keys.
+43.	Private Google Access → VMs without external IPs access Google APIs.
+44.	Secure Cloud Storage → IAM, ACLs, CMEK, uniform access.
+45.	VPC Flow Logs → Network activity logging.
+46.	Binary Authorization → Only trusted images run in GKE.
+47.	IAP → Secure app access without VPN.
+48.	Cloud Armor → DDoS protection + WAF.
+49.	Shielded VM → VM hardened against firmware attacks.
+50.	Encryption in GCP → Default at rest & in transit; CMEK/CSEK supported.
+________________________________________
+🔧 DEVOPS & SRE — 1-LINE ANSWERS
+51.	Cloud Build → Serverless CI/CD pipelines.
+52.	CI/CD on GCP → Cloud Build + Cloud Deploy + Artifact Registry.
+53.	Cloud Run vs Cloud Functions → Containers vs event-driven functions.
+54.	GKE Autopilot → Fully managed Kubernetes (Google runs nodes).
+55.	Monitoring → Metrics, logs, traces via Cloud Operations.
+56.	Artifact Registry → Store container images & packages.
+57.	Marketplace → Pre-built solutions for easy deployment.
+58.	Deploy containers → Use Cloud Run, GKE, or Compute Engine.
+59.	Blue/Green Deploy → Deploy to idle environment and switch traffic.
+60.	Config Connector → Manage GCP resources via Kubernetes YAML.
+________________________________________
+🔥 SCENARIO-BASED — 1-LINE ANSWERS
+61.	Global high-traffic system → Global LB + Cloud CDN + GKE/Cloud Run.
+62.	Log analytics pipeline → Pub/Sub → Dataflow → BigQuery.
+63.	Reduce VM cost → Rightsize + autoscale + preemptible VMs.
+64.	Secure internal access → IAP.
+65.	Petabyte analytics → BigQuery.
+66.	Migrate Hadoop/Spark → Dataproc.
+67.	Key control for sensitive data → CMEK + KMS.
+68.	Disaster recovery → Multi-region storage + replicas + failover LB.
+69.	Monitor microservices → Cloud Monitoring + Logging + Trace.
+70.	Real-time IoT pipeline → Pub/Sub → Dataflow → Bigtable/BigQuery.
+
+gcloud compute instances create my-vm \
+    --zone=us-central1-a \
+    --machine-type=e2-medium \
+    --image-family=debian-11 \
+    --image-project=debian-cloud
+
+gcloud compute instances create ubuntu-test \
+    --zone=europe-west1-b \
+    --machine-type=e2-small \
+    --image-family=ubuntu-2004-lts \
+    --image-project=ubuntu-os-cloud
+⭐ 1. GENERAL GCLOUD COMMANDS
+View your active configuration
+gcloud config list
+Set project
+gcloud config set project PROJECT_ID
+Set compute region/zone
+gcloud config set compute/zone us-central1-a
+gcloud config set compute/region us-central1
+List all gcloud configurations
+gcloud config configurations list
+________________________________________
+⭐ 2. COMPUTE ENGINE (VM) COMMANDS
+List all VM instances
+gcloud compute instances list
+Create a VM
+gcloud compute instances create my-vm \
+    --zone=us-central1-a \
+    --machine-type=e2-medium \
+    --image-family=debian-11 \
+    --image-project=debian-cloud
+Start/Stop/Delete a VM
+gcloud compute instances start my-vm
+gcloud compute instances stop my-vm
+gcloud compute instances delete my-vm
+SSH into a VM
+gcloud compute ssh my-vm --zone=us-central1-a
+________________________________________
+⭐ 3. CLOUD STORAGE (gsutil alternative via gcloud)
+List buckets
+gcloud storage buckets list
+Create bucket
+gcloud storage buckets create gs://my-bucket
+Upload file
+gcloud storage cp file.txt gs://my-bucket/
+Download file
+gcloud storage cp gs://my-bucket/file.txt .
+________________________________________
+⭐ 4. VPC NETWORK COMMANDS
+List networks
+gcloud compute networks list
+List firewall rules
+gcloud compute firewall-rules list
+Create VPC network
+gcloud compute networks create my-network \
+    --subnet-mode=auto
+Create firewall rule
+gcloud compute firewall-rules create allow-http \
+    --allow tcp:80 \
+    --target-tags=http-server
+________________________________________
+⭐ 5. CLOUD SQL COMMANDS
+List Cloud SQL instances
+gcloud sql instances list
+Create Cloud SQL instance
+gcloud sql instances create my-sql \
+    --tier=db-f1-micro \
+    --region=us-central1
+________________________________________
+⭐ 6. BIGQUERY (bq) VIA gcloud
+List datasets
+gcloud bigquery datasets list
+List tables
+gcloud bigquery tables list --dataset=mydataset
+________________________________________
+⭐ 7. PUB/SUB COMMANDS
+List topics
+gcloud pubsub topics list
+Create topic
+gcloud pubsub topics create my-topic
+Create subscription
+gcloud pubsub subscriptions create my-sub --topic=my-topic
+Publish message
+gcloud pubsub topics publish my-topic --message="Hello PubSub"
+Pull message
+gcloud pubsub subscriptions pull my-sub --auto-ack
+________________________________________
+⭐ 8. KUBERNETES (GKE) COMMANDS
+Create a GKE cluster
+gcloud container clusters create my-cluster \
+    --zone=us-central1-a
+List clusters
+gcloud container clusters list
+Get credentials (for kubectl)
+gcloud container clusters get-credentials my-cluster
+________________________________________
+⭐ 9. DATAFLOW COMMANDS
+List Dataflow jobs
+gcloud dataflow jobs list
+Launch a Dataflow template
+gcloud dataflow jobs run my-job \
+    --gcs-location=gs://dataflow-templates/latest/PubSub_to_BigQuery \
+    --parameters inputTopic=projects/myproj/topics/my-topic,\
+                outputTable=myproj:dataset.table
+________________________________________
+⭐ 10. IAM COMMANDS
+List IAM roles
+gcloud iam roles list
+List IAM service accounts
+gcloud iam service-accounts list
+Create service account
+gcloud iam service-accounts create my-sa --display-name="My Service Account"
+Assign IAM role
+gcloud projects add-iam-policy-binding my-project \
+    --member="serviceAccount:my-sa@my-project.iam.gserviceaccount.com" \
+    --role="roles/viewer"
+________________________________________
+⭐ 11. CLOUD FUNCTIONS COMMANDS
+Deploy a function
+gcloud functions deploy helloWorld \
+    --runtime python39 \
+    --trigger-http \
+    --allow-unauthenticated
+Invoke a function
+gcloud functions call helloWorld
+________________________________________
+⭐ 12. CLOUD RUN COMMANDS
+Deploy a Cloud Run service
+gcloud run deploy my-service \
+    --source . \
+    --region=us-central1 \
+    --allow-unauthenticated
+List services
+gcloud run services list
+________________________________________
+⭐ 13. LOGGING & MONITORING COMMANDS
+View logs
+gcloud logging read "resource.type=gce_instance" --limit=50
+List log metrics
+gcloud logging metrics list
+
+
+############################# gsutil Commands Reference#############################
+
+## Core Object Operations
+
+**cp** - Copy files and objects
+```bash
+gsutil cp file.txt gs://bucket/
+gsutil cp gs://bucket/file.txt .
+gsutil cp -r directory/ gs://bucket/
+```
+
+**mv** - Move/rename files and objects
+```bash
+gsutil mv gs://bucket/old.txt gs://bucket/new.txt
+gsutil mv file.txt gs://bucket/
+```
+
+**rm** - Remove objects and buckets
+```bash
+gsutil rm gs://bucket/file.txt
+gsutil rm -r gs://bucket/directory/
+gsutil rm gs://bucket/**
+```
+
+**ls** - List buckets and objects
+```bash
+gsutil ls
+gsutil ls gs://bucket/
+gsutil ls -l gs://bucket/
+gsutil ls -r gs://bucket/
+```
+
+## Bucket Management
+
+**mb** - Make buckets
+```bash
+gsutil mb gs://my-new-bucket
+gsutil mb -l us-east1 gs://my-bucket
+```
+
+**rb** - Remove buckets
+```bash
+# List buckets
+gsutil ls
+
+# Remove all objects from bucket first
+gsutil -m rm -r gs://bucket-name/*
+
+# Delete the empty bucket
+gsutil rb gs://bucket-name
+gsutil rb -f gs://bucket-with-objects
+```
+
+**du** - Display disk usage
+```bash
+gsutil du gs://bucket/
+gsutil du -s gs://bucket/
+gsutil du -sh gs://bucket/
+```
+
+## Synchronization
+
+**rsync** - Synchronize directories
+```bash
+gsutil rsync -r local-dir/ gs://bucket/remote-dir/
+gsutil rsync -d gs://bucket/ local-dir/
+
+Data Backup:
+gsutil -m rsync -r -d -c /important/data gs://backup-bucket/$(date +%Y-%m-%d)/
+
+Local to Cloud:
+gsutil -m rsync -r -d /local/directory gs://bucket-name/path/
+
+Cloud to Local:
+gsutil -m rsync -r -d gs://bucket-name/path/ /local/directory
+```
+
+**sync** - One-way synchronization
+```bash
+gsutil -m rsync -r -d source/ gs://bucket/destination/
+```
+
+## Access Control & Permissions
+
+**acl** - Access control lists
+Google Cloud Storage uses Access Control Lists (ACLs) to manage permissions at both bucket and object levels. gsutil provides commands to view, set, and modify these permissions.
+```bash
+gsutil acl get gs://bucket/object
+gsutil acl set private gs://bucket/object
+gsutil acl ch -u user@example.com:R gs://bucket/object
+# Private (owner only)
+gsutil acl set private gs://bucket-name
+
+# Public read
+gsutil acl set public-read gs://bucket-name
+
+# Public read-write
+gsutil acl set public-read-write gs://bucket-name
+
+# Authenticated read
+gsutil acl set authenticated-read gs://bucket-name
+```
+
+**iam** - IAM policies
+```bash
+gsutil iam get gs://bucket/
+gsutil iam set policy.json gs://bucket/
+gsutil iam ch -m user@example.com:objectViewer gs://bucket/
+```
+
+## Metadata & Configuration
+
+**stat** - Display object/bucket status
+```bash
+gsutil stat gs://bucket/object
+gsutil stat gs://bucket/
+gsutil ls -L -b gs://bucket-name
+```
+
+**setmeta** - Set metadata
+```bash
+gsutil setmeta -h "Content-Type:text/plain" gs://bucket/file.txt
+gsutil setmeta -h "Cache-Control:no-cache" gs://bucket/object
+```
+
+**cors** - Cross-origin resource sharing
+```bash
+gsutil cors get gs://bucket/
+gsutil cors set cors.json gs://bucket/
+```
+
+**lifecycle** - Object lifecycle management
+```bash
+gsutil lifecycle get gs://bucket/
+gsutil lifecycle set lifecycle.json gs://bucket/
+```
+
+**versioning** - Object versioning
+```bash
+gsutil versioning get gs://bucket/
+gsutil versioning set on gs://bucket/
+```
+
+**web** - Website configuration
+```bash
+gsutil web get gs://bucket/
+gsutil web set -m index.html -e 404.html gs://bucket/
+```
+
+## Advanced Operations
+
+**compose** - Compose objects
+```bash
+gsutil compose gs://bucket/part1 gs://bucket/part2 gs://bucket/combined
+```
+
+**cat** - Output object contents
+```bash
+gsutil cat gs://bucket/file.txt
+gsutil cat gs://bucket/file.txt | head -10
+```
+
+**hash** - Calculate hashes
+```bash
+gsutil hash file.txt
+gsutil hash gs://bucket/object
+```
+
+**signurl** - Generate signed URLs
+```bash
+gsutil signurl -d 1h private-key.json gs://bucket/object
+```
+
+## Monitoring & Logging
+
+**notification** - Pub/Sub notifications
+```bash
+gsutil notification create -t topic-name gs://bucket/
+gsutil notification list gs://bucket/
+gsutil notification delete notification-id
+```
+
+**logging** - Access logging
+```bash
+gsutil logging get gs://bucket/
+gsutil logging set on -b gs://log-bucket gs://source-bucket/
+```
+
+## Utility Commands
+
+**config** - Configuration management
+```bash
+gsutil config
+gsutil config -a  # authenticate
+gsutil config -o  # OAuth2 setup
+```
+
+**version** - Version information
+```bash
+gsutil version
+gsutil version -l  # long format
+```
+
+**help** - Command help
+```bash
+gsutil help
+gsutil help cp
+gsutil help acl
+```
+
+**update** - Update gsutil
+```bash
+gsutil update
+```
+
+## Common Flags
+
+**-m** - Multi-threaded/parallel operations
+**-r** - Recursive operations
+**-f** - Force operations (skip confirmations)
+**-q** - Quiet mode (suppress output)
+**-h** - Set headers
+**-d** - Delete extra files in destination
+**-n** - No-clobber (don't overwrite)
+**-u** - Skip files that exist and are newer
+
+## Performance Options
+
+**-o** - Set options
+```bash
+gsutil -o "GSUtil:parallel_thread_count=10" cp large-file gs://bucket/
+gsutil -o "GSUtil:sliced_object_download_threshold=50M" cp gs://bucket/large-file .
+```
+
+gsutil --help
+  acl              Get, set, or change bucket and/or object ACLs
+  autoclass        Configure Autoclass feature
+  bucketpolicyonly Configure uniform bucket-level access
+  cat              Concatenate object content to stdout
+  compose          Concatenate a sequence of objects into a new composite object.
+  config           Obtain credentials and create configuration file
+  cors             Get or set a CORS configuration for one or more buckets
+  cp               Copy files and objects
+  defacl           Get, set, or change default ACL on buckets
+  defstorageclass  Get or set the default storage class on buckets
+  du               Display object size usage
+  hash             Calculate file hashes
+  help             Get help about commands and topics
+  hmac             CRUD operations on service account HMAC keys.
+  iam              Get, set, or change bucket and/or object IAM permissions.
+  kms              Configure Cloud KMS encryption
+  label            Get, set, or change the label configuration of a bucket.
+  lifecycle        Get or set lifecycle configuration for a bucket
+  logging          Configure or retrieve logging on buckets
+  ls               List providers, buckets, or objects
+  mb               Make buckets
+  mv               Move/rename objects
+  notification     Configure object change notification
+  pap              Configure public access prevention
+  perfdiag         Run performance diagnostic
+  rb               Remove buckets
+  requesterpays    Enable or disable requester pays for one or more buckets
+  retention        Provides utilities to interact with Retention Policy feature.
+  rewrite          Rewrite objects
+  rm               Remove objects
+  rpo              Configure replication
+  rsync            Synchronize content of two buckets/directories
+  setmeta          Set metadata on already uploaded objects
+  signurl          Create a signed URL
+  stat             Display object status
+  test             Run gsutil unit/integration tests (for developers)
+  ubla             Configure Uniform bucket-level access
+  update           Update to the latest gsutil release
+  version          Print version info about gsutil
+  versioning       Enable or suspend versioning for one or more buckets
+  web              Set a website configuration for a bucket
+
+Additional help topics:
+  acls             Working With Access Control Lists
+  crc32c           CRC32C and Installing crcmod
+  creds            Credential Types Supporting Various Use Cases 
+  dev              Contributing Code to gsutil
+  encoding         Filename encoding and interoperability problems
+  metadata         Working With Object Metadata
+  naming           Object and Bucket Naming
+  options          Global Command Line Options
+  prod             Scripting Production Transfers
+  security         Security and Privacy Considerations
+  shim             Shim for Running gcloud storage
+  support          Google Cloud Storage Support
+  versions         Object Versioning and Concurrency Control
+
+########################### GCP Bigquery########################################
+Ways to access to Bigquery:
+1.GCP coonsole
+2.CLI
+3.API
+4.Client Libraries like python, java etc
+
+bq is utility Command -  cp ,mk, rm --- there n numer of Flags more details - login into vm run bq 
+bq cp dataset.old_table dataset2.new_table
+bq extract ds.table gs://mybucket/table.csv
+bq get-iam-policy ds.table1
+bq --nosync cancel job_id
+bq head -n 10 dataset.table
+bq insert dataset.table /tmp/mydata.json echo '{"a":1, "b":2}' | bq insert dataset.table
+bq load ds.new_tbl ./info.csv ./info_schema.json
+bq partition dataset1.sharded_ dataset2.partitioned_table
+bq rm ds.table
+bq rm -r -f old_dataset
+bq rm --connection --project_id=proj --location=us con
+bq show -j <job_id>
+bq show [--schema] dataset.table
+bq show [--view] dataset.view
+bq truncate project_id:dataset
+bq update --description "Dataset description" existing_dataset
+bq wait job_id 100  # Waits 100 seconds
+Run 'bq.py --help' to get help for global flags.
+
+1. Find top 10 highest revenue customers.
+SELECT customer_id, SUM(revenue) AS total_revenue
+FROM sales
+GROUP BY customer_id
+ORDER BY total_revenue DESC
+LIMIT 10;
+
+2. Query using STRUCT and ARRAY.
+SELECT
+  user_id,
+  STRUCT(first_name, last_name) AS user_info,
+  ARRAY(SELECT item FROM UNNEST(orders)) AS order_list
+FROM customers;
+
+3. How to UNNEST nested columns?
+SELECT
+  user_id,
+  item.product_id,
+  item.quantity
+FROM orders
+CROSS JOIN UNNEST(items) AS item;
+
+4. Optimize a query that scans too much data.
+Use a partition filter:
+SELECT *
+FROM transactions
+WHERE transaction_date >= '2024-01-01';
+
+Write operation:
+select * from pypl-edw.pp_monitor_tools.bq_objects_usage
+where project_id = 'pypl-edw' and dataset_id = 'pp_credit_ods_pp_tables' and table_id = 't_arngmt_actvty_es3x' 
+and table_operation = 'WRITE'  and compute_domain != 'ccg24-hrzana-p-data-cp' order by createtime desc limit 10
+
+bq query --nouse_legacy_sql 'SELECT name, age FROM mydataset.mytable WHERE age > 30'
+select count(*) from pp_engineering.fact_consu_seg_dly_snap where cre_ts is null
+
+To Check duplicates:
+select count(*) fp_application_id, name from <DB_Name>.<TB_Name> group fp_application_id,name having count(*) > 1
+
+count:
+bq query --nouse_legacy_sql -n 1000 "select count(*) from <DB_Name>.<TB_Name>"
+
+Create the external table:
+bq query --nouse_legacy_sql "create external table pypl-edw.pp_ss_hive_tables.reg_crypto_transfer_transaction_dtl
+options (format = 'orc',
+uris = ['gs://pypl-bkt-prd-row-std-ofi-external/apps/finance/nest/reg_crypto_transfer_transaction_dtl/*']);"
+
+Create the view:
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "create view pp_ss_hive_views.reg_crypto_transfer_transaction_dtl as select * from pypl-edw.pp_ss_hive_tables.reg_crypto_transfer_transaction_dtl;"
+
+Data Definition Language (DDL) Commands
+ALTER
+Modifies table structure (add/drop columns, change data types, etc.)
+
+-- Add column
+ALTER TABLE employees ADD COLUMN phone_number VARCHAR(15);
+
+-- Drop column
+ALTER TABLE employees DROP COLUMN middle_name;
+
+-- Modify column
+ALTER TABLE employees ALTER COLUMN salary TYPE DECIMAL(10,2);
+DROP
+Completely removes database objects (tables, databases, indexes)
+
+-- Drop table
+DROP TABLE old_employees;
+
+-- Drop database
+DROP DATABASE test_db;
+
+-- Drop index
+DROP INDEX idx_employee_name;
+
+Data Manipulation Language (DML) Commands
+UPDATE
+Modifies existing data in a table
+
+UPDATE employees 
+SET salary = 75000, department = 'Engineering' 
+WHERE employee_id = 123;
+DELETE
+Removes specific rows from a table (keeps table structure)
+
+DELETE FROM employees 
+WHERE department = 'Marketing' AND hire_date < '2020-01-01';
+TRUNCATE
+Removes all rows from a table quickly (keeps table structure)
+
+TRUNCATE TABLE temp_data;
+
+########################### gcloud dataproc ################################
+gcloud dataproc jobs submit hive --project=ccg24-hrzana-p-dps --cluster=bq-to-stampy-1-1763143646176 --region=us-west4 --execute "show partitions ledger_events_izettle.izettle_financial_mismatch_events_mx"
+
+Dataproc is Google Cloud’s fully managed service for running Apache Hadoop, Spark, Hive, and other open-source big data frameworks on scalable clusters.
+
+Advantages:
+A fast, easy, and cost-efficient way to run big data processing jobs on GCP using familiar open-source tools.
+
+⭐ Simple Definition
+Dataproc helps you run big data processing (ETL, batch jobs, machine learning, streaming) using Hadoop/Spark clusters that Google Cloud manages for you.
+You don’t need to manually:
+Install Hadoop/Spark
+Configure clusters
+Handle scaling
+Manage failures
+
+GCP does all this automatically.
+⭐ Key Features
+1. Managed Hadoop & Spark
+Dataproc provides Hadoop ecosystem tools:
+Apache Spark
+Apache Hadoop
+Apache Hive / Pig
+Presto
+Flink (via initialization scripts)
+
+2. Fast Cluster Creation
+Dataproc clusters start in less than 2 minutes, unlike traditional Hadoop setups that take hours.
+
+3. Autoscaling
+Clusters grow/shrink automatically based on job load → saves cost.
+
+4. Serverless Dataproc (Dataproc Serverless / Dataproc on GKE)
+Run Spark jobs without managing clusters → you only pay for job runtime.
+
+5. Pay Only for What You Use
+Clusters can be:
+Short-lived (spin up → execute job → shut down)
+Long-running (for continuous processing)
+You pay for the VM seconds consumed.
+
+6. Integrates with GCP ecosystem
+Works smoothly with:
+BigQuery
+Cloud Storage
+Cloud Composer (Airflow)
+Pub/Sub
+Cloud Logging & Monitoring
+
+hdfs dfs -count -h gs://pypl-bkt-prd-row-std-lands/apps/risk/ads/rccs_biz_log
+
+Validate in horizon & gcp size/file count
+hive -e 'show partitions nest.xoom_transaction_event' | tail -1
+
+Dag:
+A DAG (Directed Acyclic Graph) in Airflow is a workflow—a collection of tasks arranged in a way that clearly defines execution order and dependencies, but never loops back (acyclic).
+👉 A DAG = a scheduled pipeline of tasks
+👉 Airflow uses DAGs to know what to run, when to run, and in what order
+
+⭐ Breakdown of the Term
+1. Directed
+Each task points to the next task → defines sequence.
+
+2. Acyclic
+No loops allowed.
+A task cannot depend on itself or create infinite cycles.
+
+3. Graph
+The DAG is like a flowchart describing how tasks connect.
+
+gcloud dataproc clusters list
+gcloud dataproc clusters list --region=us-central1
+gcloud dataproc clusters list --filter="status.state=RUNNING"
+gcloud dataproc clusters list --filter="status.state=RUNNING"
+gcloud dataproc clusters list --filter="status.state=ERROR"
+gcloud dataproc clusters list --filter="status.state=CREATING"
+gcloud dataproc jobs list --limit=50
+gcloud dataproc jobs list --page-size=100
+gcloud dataproc jobs list --filter="status.stateStartTime>2024-01-01T00:00:00Z"
+gcloud dataproc clusters list --filter="status.stateStartTime>2024-01-01"
+
+FInd the List of Cluster:
+gcloud dataproc clusters list --project ccg24-hrzana-p-dps --region=us-west4
+
+⭐ What is GCP Pub/Sub?
+Google Cloud Pub/Sub (Publish–Subscribe) is a fully managed, serverless messaging service that enables asynchronous communication between applications.
+
+
+################################### SQL queries ##########################
+1.Find 2nd highest salary
+select max(salary) as second_highest_salary
+from employees
+where salary < (select max(salary) from employees);
+
+2.explain window functions and some questions on them
+🌟 Most Common Window Functions
+1. Ranking functions
+ROW_NUMBER() – assigns unique row numbers
+RANK() – skips numbers when ties occur
+DENSE_RANK() – no gaps in ranking for ties
+
+2. Aggregate window functions
+SUM()
+AVG()
+MAX()
+MIN()
+COUNT()
+
+3. Value functions
+LEAD() – look ahead to next row
+LAG() – look back to previous row
+FIRST_VALUE()
+LAST_VALUE()
+
+3.select the customers who have placed at least 3 orders in last 6 months, 
+SELECT
+    employee,
+    salary
+    SUM(salary) OVER (ORDER BY employee) AS running_total
+FROM employees;
+
+4. Select customers who have placed at least 1 order in each month in 2024 year, you will have customer,order tables
+You have two tables:
+Customers
+| customer_id | customer_name | ... |
+
+Orders
+| order_id | customer_id | order_date | amount | ... |
+order_date is a DATE or TIMESTAMP.
+
+SELECT
+    c.customer_id,
+    c.customer_name
+FROM customers c
+JOIN orders o
+    ON c.customer_id = o.customer_id
+WHERE o.order_date >= '2024-01-01'
+  AND o.order_date <  '2025-01-01'
+GROUP BY c.customer_id, c.customer_name
+HAVING COUNT(DISTINCT EXTRACT(MONTH FROM o.order_date)) = 12;
+
+5.find cumulative sum of questions
+SELECT
+    question_date,
+    question_count,
+    SUM(question_count) OVER (
+        ORDER BY question_date
+    ) AS cumulative_sum
+FROM questions;
+
+6.find duplicates, or delete duplicates in a table
+SELECT email, COUNT(*) AS cnt
+FROM employees
+GROUP BY email
+HAVING COUNT(*) > 1;
+
+7.alter, delete,trucate,update,drop command questions
+⭐ 1. ALTER Command – Interview Questions
+Q1. How do you add a new column to a table?
+ALTER TABLE employees
+ADD COLUMN department VARCHAR(50);
+
+Q2. Modify the datatype of a column
+ALTER TABLE employees
+MODIFY COLUMN salary DECIMAL(10,2);
+
+(Use ALTER COLUMN in SQL Server / PostgreSQL)
+Q3. Rename a column
+MySQL:
+ALTER TABLE employees
+CHANGE COLUMN old_name new_name VARCHAR(100);
+PostgreSQL / SQL Server:
+ALTER TABLE employees
+RENAME COLUMN old_name TO new_name;
+
+Q4. Drop a column
+ALTER TABLE employees
+DROP COLUMN temp_data;
+Q5. Add a constraint
+ALTER TABLE employees
+ADD CONSTRAINT unique_email UNIQUE (email);
+________________________________________
+⭐ 2. DELETE Command – Interview Questions
+Q1. Delete specific rows
+DELETE FROM employees
+WHERE department = 'HR';
+
+Q2. Delete all rows from a table
+DELETE FROM employees;
+✔ Table structure stays
+✔ Slower than TRUNCATE
+✔ Can be rolled back (transaction supported)
+
+Q3. Delete using a JOIN
+DELETE e
+FROM employees e
+JOIN departments d ON e.dept_id = d.id
+WHERE d.location = 'NY';
+________________________________________
+⭐ 3. TRUNCATE Command – Interview Questions
+Q1. Remove all records quickly
+TRUNCATE TABLE employees;
+Q2. Difference between DELETE and TRUNCATE
+DELETE	TRUNCATE
+DML (Data Manipulation)	DDL (Data Definition)
+Can use WHERE clause	Cannot use WHERE
+Slower – row-by-row deletion	Very fast – deallocates data pages
+Can be rolled back	Depends on DB system; often cannot
+Triggers fire	Triggers typically don't fire
+
+Q3. Can you truncate a table with foreign keys?
+❌ No, unless constraints are dropped or set to cascade.
+________________________________________
+⭐ 4. UPDATE Command – Interview Questions
+Q1. Update one row
+UPDATE employees
+SET salary = salary + 5000
+WHERE id = 101;
+
+Q2. Update multiple rows
+UPDATE employees
+SET department = 'IT'
+WHERE location = 'Remote';
+
+
+Q3. Update using JOIN
+UPDATE e
+SET e.salary = e.salary * 1.10
+FROM employees e
+JOIN departments d ON e.dept_id = d.id
+WHERE d.name = 'Engineering';
+________________________________________
+⭐ 5. DROP Command – Interview Questions
+Q1. Drop a table
+DROP TABLE employees;
+⚠️ Deletes the table and its data permanently.
+Q2. Drop a database
+DROP DATABASE company_db;
+Q3. Difference between DROP and TRUNCATE
+DROP	TRUNCATE
+Deletes the table structure + data	Deletes data only, keeps structure
+Irreversible	Can often be rolled back (depends on DB)
+Table no longer exists	Table still exists
+________________________________________
+⭐ Bonus: Combined Interview Scenarios
+Q1. How do you rename a table?
+ALTER TABLE old_name RENAME TO new_name;
+Q2. Remove duplicate rows
+DELETE FROM employees
+WHERE id NOT IN (
+    SELECT MIN(id) FROM employees GROUP BY email
+);
+Q3. Add a NOT NULL constraint
+ALTER TABLE employees
+MODIFY COLUMN salary DECIMAL(10,2) NOT NULL;
+
+8.find the employee whose salary is greater than avg salary of their dept 
+
+9. find customers how have ordered at list 1 order in each month from 2024 to 1year
+
+
+10. there will be visitor table you need to find at least once they have to visit
+
+11. A table contains bank statements — write an SQL query to calculate a rolling sum of transactions.
+SELECT
+    account_id,
+    txn_date,
+    amount,
+    SUM(amount) OVER (
+        PARTITION BY account_id
+        ORDER BY txn_date
+        ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+    ) AS rolling_sum
+FROM bank_statements
+ORDER BY account_id, txn_date;
+
+################################## 50 Hadoop interview questions. ##################################
+🔰 HADOOP BASIC — SHORT REVISION NOTES
+1.	Hadoop → Distributed storage + processing framework.
+2.	Core components → HDFS, YARN, MapReduce.
+3.	HDFS → Distributed file system with fault tolerance.
+4.	NameNode → Stores metadata; master node.
+5.	DataNode → Stores actual data blocks.
+6.	Block size → Default 128 MB.
+7.	MapReduce → Map (process) + Reduce (aggregate).
+8.	Hadoop cluster → Master + worker nodes.
+9.	Modes → Standalone, pseudo, distributed.
+10.	Block → Unit of storage; large to reduce overhead.
+________________________________________
+⚙️ INTERMEDIATE — SHORT REVISION NOTES
+11.	NameNode HA → Active–standby setup.
+12.	Secondary NameNode → Creates checkpoints; not backup NN.
+13.	NN failure → Standby NN takes over (if HA enabled).
+14.	HDFS storage → Splits files into blocks replicated on nodes.
+15.	YARN → Resource manager for Hadoop jobs.
+16.	RM vs NM → Scheduler vs per-node agent.
+17.	Combiner → Local mini-reducer to reduce data transfer.
+18.	Partitioner → Distributes map output across reducers.
+19.	Speculative execution → Duplicate slow tasks for faster job completion.
+20.	Fault tolerance → Replication, re-execution, heartbeats.
+________________________________________
+🚀 ADVANCED — SHORT REVISION NOTES
+21.	HDFS write → Client → NN → DN pipeline → replication.
+22.	HDFS read → Client → NN → nearest DN → stream data.
+23.	Checkpointing → Merge edit logs with fsimage.
+24.	Data locality → Move computation to data.
+25.	Hadoop versions → 1.x (MR), 2.x (YARN), 3.x (EC, HA).
+26.	Rack awareness → Replica placement across racks.
+27.	Small files issue → Too many files overload NN RAM.
+28.	Shuffle/sort → Mapper output → sorted + sent to reducers.
+29.	InputFormat → Reads input; OutputFormat → Writes output.
+30.	File formats → Parquet, ORC, Avro, SequenceFile.
+________________________________________
+🧠 SCENARIO-BASED — SHORT REVISION NOTES
+31.	Slow job → Check skew, increase reducers, add combiner, tune memory.
+32.	NN memory full → Increase heap, merge small files, enable federation.
+33.	Millions of small files → Use Sequence/Avro/Parquet; HBase.
+34.	MR OOM → Increase heap, reduce input per task, use combiners.
+35.	DN failure during write → Pipeline reconfigures; new DN selected.
+36.	ETL workflow → HDFS → Spark → Hive → Scheduler.
+37.	10TB logs/day → Flume → HDFS → Spark → Parquet.
+38.	Job scheduling → Oozie, Airflow, Azkaban.
+39.	Cloud migration → Dataproc/EMR + DistCp + Hive metastore migration.
+40.	Cluster scaling → Add nodes, rebalance, update rack configs.
+________________________________________
+🔧 HADOOP ECOSYSTEM — SHORT REVISION NOTES
+41.	Hive → SQL-on-Hadoop; converts queries to MR/Spark.
+42.	Internal vs External tables → Internal owns data; external references.
+43.	Pig → ETL scripting (Pig Latin).
+44.	HBase → NoSQL column store on HDFS.
+45.	HBase vs Hive → Real-time vs batch analytics.
+46.	Sqoop → Import/export between RDBMS & Hadoop.
+47.	Flume → Log ingestion into Hadoop.
+48.	ZooKeeper → Coordination, leader election.
+49.	Spark → In-memory, fast processing engine.
+50.	Tez → Faster execution engine replacing MapReduce for Hive.
+
+############################ python: ############################ 
+1. reverse a string only words not leters
+2. explain Decorater and generator 
+3. Count the occurence of words in string
+4. diff between shallow copy and deep copy
+5. explain multithreading
+6. explain with open file func(to read a file)
+7. List and tuple diff
+8. input l=[1,9,9]  output out=[1,1,0,0] write code
+
+9. 1. Write a Python program to sort a list of integers in descending order without using the sort() function.
+# Example usage
+numbers = [12, 4, 56, 17, 8, 99, 5]
+print("Original list:", numbers)
+print("Sorted list (descending):", descending_sort(numbers))
+
+#############################🐳 BASIC DOCKER INTERVIEW QUESTIONS & ANSWERS
+________________________________________
+1. What is Docker?
+Docker is a platform for building, packaging, shipping, and running applications in containers, ensuring consistency across environments.
+________________________________________
+2. What is a Docker container?
+A container is a lightweight, isolated runtime environment that includes an application and its dependencies.
+________________________________________
+3. What is a Docker image?
+An image is a read-only template used to create containers (like a blueprint).
+________________________________________
+4. Difference between Docker images and containers?
+Image	Container
+Blueprint	Running instance of an image
+Read-only	Read-write layer on top
+________________________________________
+5. What is a Dockerfile?
+A Dockerfile is a script containing instructions to build a Docker image.
+________________________________________
+6. How do you build an image from a Dockerfile?
+docker build -t myimage .
+________________________________________
+7. How do you run a Docker container?
+docker run -it myimage
+________________________________________
+8. What is the purpose of the EXPOSE command in Dockerfile?
+It documents which ports the container listens on (does not publish ports).
+________________________________________
+9. How to map ports when running a container?
+docker run -p 8080:80 nginx
+________________________________________
+10. How do you list running containers?
+docker ps
+________________________________________
+🐳 INTERMEDIATE DOCKER INTERVIEW QUESTIONS & ANSWERS
+________________________________________
+11. Explain Docker architecture.
+Components:
+•	Docker Client → CLI
+•	Docker Daemon → runs containers
+•	Docker Images → stored in registry
+•	Docker Registries → Docker Hub / private registries
+________________________________________
+12. What is Docker Hub?
+A cloud-based registry that stores Docker images publicly or privately.
+________________________________________
+13. What is a Docker Volume?
+A volume is persistent storage managed by Docker, used to store data outside the container’s lifecycle.
+________________________________________
+14. How do you create and use a Docker volume?
+docker volume create myvol
+docker run -v myvol:/data myimage
+________________________________________
+15. What is Docker Compose?
+A tool to run multi-container applications using a docker-compose.yml file.
+________________________________________
+16. How do you start services using Docker Compose?
+docker-compose up -d
+________________________________________
+17. What is the difference between Docker Compose and Dockerfile?
+•	Dockerfile → Builds an image
+•	Compose → Runs multiple containers together
+________________________________________
+18. What is a Docker Registry?
+A repository that stores Docker images (like GitHub for containers).
+________________________________________
+19. What is the layered architecture in Docker?
+Images are built in layers; changes create new layers, enabling caching and reusability.
+________________________________________
+20. What is the purpose of an entrypoint in Docker?
+Defines the main command to run inside the container.
+________________________________________
+🐳 ADVANCED DOCKER INTERVIEW QUESTIONS & ANSWERS
+________________________________________
+21. Difference between ENTRYPOINT and CMD?
+•	ENTRYPOINT → fixed command
+•	CMD → default arguments
+Together: ENTRYPOINT + CMD = final executed command.
+________________________________________
+22. How does Docker isolate containers?
+Using Linux features:
+•	Namespaces
+•	Control groups (cgroups)
+•	Union filesystems
+________________________________________
+23. What is Docker Swarm?
+A native Docker clustering and orchestration tool (less used vs Kubernetes).
+________________________________________
+24. How do you inspect a Docker container?
+docker inspect container_id
+________________________________________
+25. What is a multi-stage Docker build?
+A technique to reduce image size by copying only necessary artifacts from one build stage to another.
+________________________________________
+26. How do you reduce Docker image size?
+•	Use small base images (alpine)
+•	Clear cache
+•	Use multi-stage builds
+•	Remove unnecessary packages
+________________________________________
+27. How do you check container logs?
+docker logs container_id
+________________________________________
+28. How does Docker networking work?
+Docker provides:
+•	Bridge network (default)
+•	Host network
+•	Overlay network
+•	MACVLAN
+Containers communicate via virtual Ethernet interfaces.
+________________________________________
+29. What is the difference between docker stop and docker kill?
+•	stop sends a SIGTERM (graceful)
+•	kill sends SIGKILL (forced)
+________________________________________
+30. How do you remove unused images/containers?
+docker system prune -a
+________________________________________
+🐳 SCENARIO-BASED DOCKER QUESTIONS & ANSWERS
+________________________________________
+31. Your container keeps restarting. How do you debug it?
+•	Check logs: docker logs container
+•	Inspect container: docker inspect
+•	Validate entrypoint/cmd
+•	Check health checks
+________________________________________
+32. Your image is too large. What do you do?
+•	Use Alpine base
+•	Multi-stage builds
+•	Remove build tools after installation
+________________________________________
+33. You need persistent storage. What do you choose?
+Use Docker volumes, not bind mounts.
+________________________________________
+34. How to share environment variables with containers?
+docker run -e ENV=value myimage
+or use .env with Compose.
+________________________________________
+35. How do you connect multiple containers to talk to each other?
+Use a Docker bridge network or Docker Compose, which creates a default network.
+
+________________________________________
+🐳 1. Docker Version & Info Commands
+Check Docker version
+docker --version
+Show system-wide Docker info
+docker info
+________________________________________
+🐳 2. Docker Image Commands
+List images
+docker images
+Pull image from Docker Hub
+docker pull ubuntu
+Build image from Dockerfile
+docker build -t myimage:latest .
+Remove image
+docker rmi image_id
+Tag an image
+docker tag myimage:latest myrepo/myimage:v1
+________________________________________
+🐳 3. Docker Container Commands
+Run a container
+docker run ubuntu
+Run container with interactive terminal
+docker run -it ubuntu bash
+Run container in background (detached)
+docker run -d nginx
+List running containers
+docker ps
+List all containers (including stopped)
+docker ps -a
+Stop a container
+docker stop container_id
+Start a stopped container
+docker start container_id
+Restart container
+docker restart container_id
+Remove container
+docker rm container_id
+________________________________________
+🐳 4. Docker Logs, Exec & Inspect
+View logs of a container
+docker logs container_id
+Execute command inside a running container
+docker exec -it container_id bash
+Inspect container details
+docker inspect container_id
+________________________________________
+🐳 5. Port Mapping & Volume Mounting
+Run container with port mapping
+docker run -p 8080:80 nginx
+Run container with volume mount
+docker run -v /host/path:/container/path myimage
+________________________________________
+🐳 6. Docker Network Commands
+List Docker networks
+docker network ls
+Create a network
+docker network create mynetwork
+Connect container to a network
+docker network connect mynetwork container_id
+________________________________________
+🐳 7. Docker Compose Commands
+Start services defined in docker-compose.yml
+docker-compose up
+Start in detached mode
+docker-compose up -d
+Stop services
+docker-compose down
+View logs of services
+docker-compose logs
+________________________________________
+🐳 8. Docker Cleanup Commands
+Remove unused containers
+docker container prune
+Remove unused images
+docker image prune
+Remove everything unused (system prune)
+docker system prune
+________________________________________
+🐳 Top 10 Most Used Docker Commands (Quick List)
+1.	docker run -it image bash
+2.	docker ps -a
+3.	docker stop container
+4.	docker rm container
+5.	docker images
+6.	docker rmi image
+7.	docker build -t name .
+8.	docker exec -it container bash
+9.	docker logs container
+10.	docker-compose up -d
+
+###############################🔰 BHELL SCRIPT INTERVIEW QUESTIONS — ONE-LINE ANSWERS###############################
+1. What is a shell script?
+A text file containing commands executed by a Unix/Linux shell.
+2. How do you run a shell script?
+bash script.sh or make it executable: chmod +x script.sh && ./script.sh.
+3. What is #!/bin/bash?
+Shebang that tells the system to run the script using the Bash shell.
+4. How to define a variable?
+name="John" (no spaces around =).
+5. How to access a variable?
+$name
+6. How to read user input?
+read variable
+7. What are positional parameters?
+Arguments like $0, $1, $2, etc.
+8. How do you get the number of arguments?
+$#
+9. How do you get all arguments?
+$@ or $*
+10. How to write an if statement?
+if [ condition ]; then … fi
+________________________________________
+⚙️ CONDITIONALS & LOOPS — ONE-LINE ANSWERS
+11. How to write a for loop?
+for i in list; do echo $i; done
+12. While loop syntax?
+while [ condition ]; do … done
+13. Case statement syntax?
+case $var in pattern) commands ;; esac
+14. How to check file exists?
+[ -e filename ]
+15. Check if directory exists?
+[ -d dirname ]
+16. How to compare integers?
+-eq -ne -lt -gt -le -ge
+17. String comparison operators?
+=, !=, -z, -n
+________________________________________
+🧰 SHELL SCRIPT COMMANDS — ONE-LINE ANSWERS
+18. How to print text?
+echo "Hello"
+19. How to print without newline?
+echo -n "text"
+20. How to get current directory?
+pwd
+21. How to list files?
+ls -l
+22. How to get last command exit status?
+$?
+23. How to run a command in background?
+command &
+24. How to kill a process?
+kill PID
+________________________________________
+🔧 FUNCTIONS & SCRIPTING — ONE-LINE ANSWERS
+25. How to define a function?
+myfunc() { commands; }
+26. How to return from a function?
+return value
+27. How to get function output?
+result=$(myfunc)
+28. How to include another script?
+. script.sh or source script.sh
+29. What does set -e do?
+Exits script immediately if a command fails.
+30. What does set -x do?
+Prints each executed command (debug mode).
+________________________________________
+🔥 FILE HANDLING — ONE-LINE ANSWERS
+31. Append to file?
+echo "text" >> file.txt
+32. Overwrite file?
+echo "text" > file.txt
+33. Read file line by line?
+while read line; do echo $line; done < file.txt
+34. Count lines in a file?
+wc -l file.txt
+35. Search text in file?
+grep "pattern" file.txt
+________________________________________
+🧠 ADVANCED SHELL INTERVIEW QUESTIONS — ONE-LINE ANSWERS
+36. What is cron?
+Scheduler for running scripts periodically.
+37. How to schedule a script with cron?
+crontab -e then add cron expression.
+38. What is awk used for?
+Pattern scanning and text processing.
+39. What is sed used for?
+Stream editor for modifying text.
+40. What is the difference between > and >>?
+> overwrites; >> appends.
+41. How to check if a command exists?
+command -v cmd
+42. How to trap a signal?
+trap 'commands' SIGINT
+43. What is $PATH?
+Environment variable listing directories of executable commands.
+44. How to export a variable?
+export VAR=value
+45. What is an exit code?
+A number indicating success (0) or failure (>0).
+________________________________________
+🧩 PRACTICAL SHELL SCRIPT QUESTIONS — ONE-LINE ANSWERS
+46. How to remove all .log files?
+rm *.log
+47. How to check memory/CPU usage?
+top or free -m
+48. How to find biggest files?
+du -sh * | sort -hr | head
+49. How to find running process?
+ps -ef | grep name
+50. How to print last 10 lines of file?
+tail -10 file.txt
+
+############################## Purpose: ##############################
+Google Cloud to On-Prem Hadoop Cluster => Data Copy On-Prem Hadoop Cluster to GCP
+
+Data Movement from Google Cloud to On-Prem Hadoop Cluster
+Purpose: To copy data from Google Cloud Storage to On-Prem Hadoop cluster using Gobblin Hive data copy properties or File Copy properties.
+
+Scenarios:
+The following scenarios were tested as per the exercise for data movement from Google Cloud to On-Prem Hadoop Cluster.
+
+Hive to Hive table copy from DataProc(Google Cloud) to On-Premise Hadoop.
+Copy a partitioned table
+Copy non-partitioned table
+File to File (or) Folder level copy from Google Cloud Storage to On-Premise Hadoop File System.
+Copy data from a google storage location to new HDFS location
+Copy data incrementally from google cloud storage to HDFS file location. 
+Copy folder with special characters(partitioned table folders) from google cloud storage to HDFS file location.
+
+Actions:
+################## Hive to Hive Copy - Partitioned Table:
+
+#Scenario
+Validate Partitioned Hive table data copy from GCP Dataproc Hive to on-premise Hive Database
+
+Test Steps
+Using the below pull file, execute Gobblin job to copy folder / files to on-premise HDFS cluster.
+
+Expected Results
+The external partitioned table created on data proc to be copied and replicated in the mentioned location over on-premise Hive database.
+
+Actual Results
+Gobblin Successfully copied the partitioned hive table from Google Dataproc to on-premise Hive database.
+
+1. Create the table and Database on Dataproc cluster
+Source Data creation on GCP Dataproc.
+
+hive> create database dmr_database;
+hive> CREATE EXTERNAL TABLE dmr_database.dmr_test1(`id` int,`name` string) PARTITIONED BY (`city` string) LOCATION 'gs://gobblin-hdfs-gs-copy/tmp/dmr_test1';
+hive> insert into dmr_test1 partition ( city='NY') values ( 1,'name');
+hive>  select * from dmr_test;
+OK
+1   name    NY
+Time taken: 0.193 seconds, Fetched: 1 row(s)
+ 
+hive> show partitions dmr_database.dmr_test;
+OK
+city=NY
+Time taken: 0.209 seconds, Fetched: 1 row(s)
+
+2. Prepare the Pull file for Hive to Hive data copy of Partitioned Table
+Pull File - Hive to Hive - Partitioned Table copy
+
+3.  The data results for the files in source and target post the Gobblin job run are as follows:
+Files & Data on on-premise post data copy
+
+Source Data (Dataproc Hive)
+===========================
+hive>  select * from dmr_database.dmr_test1;
+ 
+Target Data (On-prem Hive)
+==========================
+hive> select * from dmr_database.dmr_test1;
+
+### Data Files
+### Source
+hdfs dfs -ls -R gs://gobblin-hdfs-gs-copy/tmp/dmr_test1
+drwx------   - ravim ravim          0 2020-12-10 15:02 gs://gobblin-hdfs-gs-copy/tmp/dmr_test1/city=NY
+-rwx------   3 ravim ravim          7 2020-12-10 15:03 gs://gobblin-hdfs-gs-copy/tmp/dmr_test1/city=NY/000000_0
+ 
+### Target
+# hdfs dfs -ls -R hdfs://localhost:8020/tmp/dmr_test1/dmr_test1
+drwxr-xr-x   - ravim supergroup          0 2020-12-10 20:34 hdfs://localhost:8020/tmp/dmr_test1/dmr_test1/city=NY
+-rw-r--r--   3 ravim supergroup          7 2020-12-10 20:34 hdfs://localhost:8020/tmp/dmr_test1/dmr_test1/city=NY/000000_0
+
+################## Hive to Hive Copy - Non Partitioned table:
+Scenario
+Validate hive table copy from GCS to on-premise HDFS Cluster
+
+Test Steps
+Using the below pull file, execute Gobblin job to copy hive table to on-premise Hive 
+
+Expected Results
+All files specified by the path over GS in the pull file to be copied to the target path on HDFS.
+
+Actual Results
+Gobblin Successfully copied the files from Google Storage to HDFS path.
+
+###########BDM - Data Copy on-prem to GCP
+Adhoc data movement from Hadoop to GCP.
+
+Adhoc data movement involve a two-step process 
+1. Moving the data from Hadoop to GCS 
+2. Loading the GCS data into Big query Table
+
+
+Partition Table:
+Command:
+
+bq load \
+--source_format=PARQUET \
+--hive_partitioning_mode=AUTO \
+--decimal_target_types=NUMERIC \
+--decimal_target_types=BIGNUMERIC \
+--replace \
+--hive_partitioning_source_uri_prefix=gs://pypl-bkt-prd-row-std-peak/apps/fpa/ads/peak/bt/raw_zone/identity/salesforce_account/ \
+pypl-edw-test:pp_scratch_peak.salesforce_account gs://pypl-bkt-prd-row-std-peak/apps/fpa/ads/peak/bt/raw_zone/identity/salesforce_account/year=2021/month=05/day=31/partition_type=base/*
+
+After Successful copy run the validation command to check the over all data count:
+
+select
+count(1)
+from
+dl_bt_ss_identity_raw_tables.salesforce_account
+where
+year='2021'
+and month='05'
+and day =31
+and partition_type='base';
+
+Non - Partition Table:
+Command:
+bq load \
+--source_format=PARQUET \
+--autodetect \
+pypl-edw-test:pp_scratch_peak.ideal_payment_details_hist gs://pypl-bkt-prd-row-std-peak/apps/fpa/ads/peak/bt/raw_zone/identity/ideal_payment_details_hist/*
+
+After Successful copy run the validation command to check the over all data count:
+select
+count(1)
+from
+dl_bt_ss_identity_raw_tables.ideal_payment_details_hist;
+
+
+########################## overview of Google Cloud as a *Generative AI leader***
+---
+
+## 🌐 **1. What Makes Google Cloud a Generative AI Leader**
+
+Google Cloud is one of the leading cloud platforms for **generative AI (GenAI)** — the class of AI that can **generate text, images, video, and more**, and power intelligent applications at enterprise scale. It combines Google’s AI research with its cloud infrastructure to help companies build, deploy, and scale generative AI solutions reliably and securely. ([Google Cloud][1])
+
+---
+
+## 🚀 **2. Core Generative AI Platform: Vertex AI**
+
+At the heart of Google Cloud’s AI strategy is **Vertex AI**, a unified platform that enables developers and businesses to create, launch, and manage generative AI and machine learning applications.
+
+### **Vertex AI Key Features**
+
+* **Model Garden** — Access to 200+ models, including Google’s proprietary foundation models like **Gemini** and community/open models. ([Google Cloud Documentation][2])
+* **Enterprise-ready infrastructure** — Built-in data privacy, security, and scalability for business workloads. ([Google Cloud Documentation][3])
+* **Model customization** — Train, fine-tune, and deploy AI models for your specific use cases. ([Google Cloud][1])
+* **Big context windows & multimodality** — Supports advanced capabilities like longer context understanding and multimodal reasoning (text + images). ([Google Cloud Documentation][3])
+
+Vertex AI lets organizations go *beyond research and prototypes* into **production-ready AI applications** — from chatbots to knowledge assistants, search systems, and intelligent automation. ([Google Cloud][1])
+
+---
+
+## 🤖 **3. Generative AI Tools & Services**
+
+### **🔥 Gemini Models**
+
+Google’s flagship family of generative AI models (e.g., Gemini 3, Gemini 2.5) are integrated into Vertex AI and powering many advanced GenAI use cases — from summarization and reasoning to code generation and multimodal output. ([Google Cloud][1])
+
+### **🧠 Vertex AI Studio**
+
+A workspace for rapid prototyping, prompt design, prompt refinement, and model experimentation — ideal for teams to build and iterate on GenAI applications. ([Google Cloud Documentation][4])
+
+### **🤝 Agent Builder**
+
+Tools to build AI agents capable of performing tasks like document search, recommendation, triage automation, and interactive workflows. ([Google Cloud][5])
+
+### **🔍 Vertex AI Search**
+
+A managed service for building **AI-powered search experiences** tailored to websites and applications. ([Google Cloud][5])
+
+### **📹 Advanced Media Models**
+
+Google Cloud also supports **generative video** capabilities such as Veo 3 and Veo 3 Fast, enabling high-quality video generation (including audio) via Vertex AI. ([Cinco Días][6])
+
+---
+
+## 🏢 **4. Enterprise & Real-World Adoption**
+
+Google Cloud’s generative AI isn’t just theoretical — organizations are applying it across industries. For example:
+
+* Travel platforms like **MakeMyTrip** are using Google Cloud AI for smarter, personalized trip planning. ([The Times of India][7])
+* Defense and government sectors are adopting **Gemini for Government** for document automation and workflow support. ([Axios][8])
+
+These show how Google’s AI tools are moving into **business-critical applications across sectors**. ([Axios][8])
+
+---
+
+## 🎓 **5. AI Leadership Through People & Skills**
+
+Google Cloud also fosters generative AI leadership through **training and certification**:
+
+### **Generative AI Leader Certification**
+
+This credential is designed for professionals who can:
+
+* Understand generative AI concepts
+* Map them to business opportunities
+* Influence strategic GenAI adoption using Google Cloud services
+  It’s meant for both technical and **non-technical leaders** looking to drive organizational transformation. ([Google Cloud][9])
+
+---
+
+## 📌 **6. Why Google Cloud Stands Out**
+
+✅ **Unified platform** for AI/ML and generative AI — from experimentation to deployment. ([Google Cloud Documentation][2])
+✅ **Access to cutting-edge models** like Gemini and multimodal capabilities. ([Google Cloud][1])
+✅ **Enterprise readiness** — security, scalability, and governance for real-world systems. ([Google Cloud Documentation][3])
+✅ **Extensive developer tooling** — from prompt workspaces to agent builders and search. ([Google Cloud Documentation][4])
+
+---
+
+## 📊 **Summary**
+
+Google Cloud has positioned itself as a **Generative AI leader** by:
+
+* Offering a powerful, flexible platform (Vertex AI) for building and scaling GenAI solutions. ([Google Cloud Documentation][2])
+* Integrating top-tier generative models like **Gemini** into enterprise workflows. ([Google Cloud][1])
+* Providing tools to accelerate development, customization, and deployment. ([Google Cloud Documentation][4])
+* Empowering professionals with certification and skills to lead AI strategy. ([Google Cloud][9])
+
+---
+
+If you’d like, I can also provide a **short slide deck structure** or **bullet notes** for presentations on this topic!
+
+[1]: https://cloud.google.com/vertex-ai?utm_source=chatgpt.com "Vertex AI Platform | Google Cloud"
+[2]: https://docs.cloud.google.com/vertex-ai/docs/start/introduction-unified-platform?hl=en&utm_source=chatgpt.com "Overview of Vertex AI | Google Cloud Documentation"
+[3]: https://docs.cloud.google.com/vertex-ai/generative-ai/docs?utm_source=chatgpt.com "Generative AI on Vertex AI | Google Cloud Documentation"
+[4]: https://docs.cloud.google.com/vertex-ai/generative-ai/docs/start/vertex-ai-studio-capabilities?utm_source=chatgpt.com "Vertex AI Studio capabilities | Generative AI on Vertex AI | Google ..."
+[5]: https://cloud.google.com/products/ai?ref=aiDrips&utm_source=chatgpt.com "AI and Machine Learning Products and Services | Google Cloud"
+[6]: https://cincodias.elpais.com/smartlife/lifestyle/2025-07-29/google-veo-3-veo-3-fast-vertex-ai.html?utm_source=chatgpt.com "Google lanza Veo 3 y Veo 3 Fast en Vertex AI: crea vídeos generativos de alta calidad"
+[7]: https://timesofindia.indiatimes.com/technology/tech-news/makemytrip-partners-with-google-cloud-to-revamp-ai-powered-travel-planning-for-travellers/articleshow/124388475.cms?utm_source=chatgpt.com "MakeMyTrip partners with Google Cloud to revamp AI-powered travel planning for travellers"
+[8]: https://www.axios.com/2025/12/09/pentagon-google-gemini-genai-military-platform?utm_source=chatgpt.com "U.S. military to use Google Gemini for new AI platform"
+[9]: https://cloud.google.com/learn/certification/generative-ai-leader?utm_source=chatgpt.com "Generative AI Leader | Learn | Google Cloud"
+
+#############################ETL #####################
+**ETL tool** stands for **Extract, Transform, Load** tool. using ETL move and prepare data from one system to another.
+
+## 🔧 What ETL Tools Do
+
+### **1. Extract**
+
+They **pull data** from various sources, such as:
+
+* Databases
+* APIs
+* Files (CSV, JSON, Excel)
+* Cloud storage
+* Applications (CRM, ERP, etc.)
+
+### **2. Transform**
+
+Examples of transformations:
+
+* Removing duplicates
+* Joining tables
+* Converting formats
+* Aggregating values (sums, averages)
+* Applying business rules
+
+### **3. Load**
+
+They **load the processed data** into a target system, such as:
+
+* Data warehouses (Snowflake, Redshift, BigQuery)
+* Databases
+* Analytics platforms
+
+---
+
+## 💡 Why ETL Tools Are Useful
+
+* Automate repetitive data movement
+* Ensure clean and accurate data
+* Handle large volumes of data
+* Enable reporting, dashboards, machine learning, and analytics
+
+---
+## 📌 Common ETL Tools
+
+Some popular tools include:
+
+* **Informatica PowerCenter**
+* **Talend**
+* **Apache NiFi**
+* **AWS Glue**
+* **Azure Data Factory**
+* **Fivetran** (more ELT-style)
+* **Airflow** (orchestration, often used in ETL workflows)
+
+############################
