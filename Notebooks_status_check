@@ -1,0 +1,80 @@
+import linecache
+import os
+import pandas as pd
+
+#Please provide the below input values
+file_path = r"C:\Users\mdevendiran\Documents\Notebooks\GCS notebook validation.xlsx"
+base_path = "C:/Users/mdevendiran/Documents/Notebooks/td2bq-migration-tools-automation-migrate/Notebooks"
+
+
+def check_file_exists(file_path):
+    return os.path.exists(file_path)
+
+def check_directory_exists(directoy_path):
+    if os.path.exists(directoy_path) and os.path.isdir(directoy_path):
+        return True
+
+def get_line_content(path):
+    with open(path, 'r') as file:
+        lines = file.read().split("\n")
+        for i, line in enumerate(lines):
+            if 'ERROR_OTHER' in line:  # or word in line.split():
+                line = linecache.getline(path, i + 1)
+                return line.split()[2]
+
+def check_error_in_file_content(file_path):
+    try:
+        with open(file_path,'r') as file:
+            content = file.read()
+            if "ERROR_OTHER" in content:
+                return True
+    except FileNotFoundError:
+        pass
+    return False
+
+def change_extension_to_sql(file_path):
+    base_path, old_extension = os.path.splitext(file_path)
+    new_file_path = base_path + ".sql"
+    return new_file_path
+
+df = pd.read_excel(file_path)
+
+df['Status'] = ''
+df['Error'] = ''
+
+
+for index, row in df.iterrows():
+    absolute_path = row['absolute_file_path']
+    absolute_path = str(absolute_path).replace('/x/home', '')
+    directory_path = row['Owner']
+    directory_path = str(base_path) + "/" + str(directory_path)
+    full_file_path = base_path + absolute_path
+    if check_file_exists(full_file_path):
+        if check_error_in_file_content(full_file_path):
+            print(f"File exists and has error: {full_file_path}")
+            keyword = get_line_content(full_file_path)
+            df.at[index, 'Status'] = 'Not migrated'
+            df.at[index, 'Error'] = keyword
+        else:
+            print(f"File exists and No error: {full_file_path}")
+            df.at[index, 'Status'] = 'Migrated'
+    else:
+        new_file_path = change_extension_to_sql(full_file_path)
+        if check_file_exists(new_file_path):
+            if check_error_in_file_content(new_file_path):
+                print(f"File exists and has error: {new_file_path}")
+                keyword = get_line_content(new_file_path)
+                df.at[index, 'Status'] = 'Not migrated'
+                df.at[index, 'Error'] = keyword
+            else:
+                print(f"File exists and No error: {new_file_path}")
+                df.at[index, 'Status'] = 'Migrated'
+        else:
+            print(f'file does not exists in .sql: {new_file_path}')
+            if check_directory_exists(directory_path):
+                df.at[index, 'Status'] = 'File_not_exist'
+            else:
+                df.at[index, 'Status'] = 'User_not_exist'
+# save spreadsheet
+df.to_excel(file_path, index=False, engine='openpyxl')
+print("Status updated for all files")
