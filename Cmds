@@ -1,0 +1,737 @@
+ 1. Only Hold request - Mark it as Hold/Release 
+ 2. Only Release Request - Mark it as Hold/Release. 
+ 3. Only Sync Request - Mark it as Sync 
+ 4. Both Sync and Hold Request -  Mark it as two entry, one as Sync and other as Hold/Release
+ FL Table: 
+ we can proceed as regular steps. release>trigger manually>> table will sync.
+ Approval not required : Temp Hold/Permanent Hold/Sync
+ Active           - 0
+ Temp Hold        - 6
+ Permanent Hold   - 47
+ Released/Enabled - 0
+ Source converted - 66
+ Src updated      - 99
+ One time         - 500
+ Order Isert      - 109
+ # *Query for Deletes* #
+ssh -o ServerAliveInterval=30 10.174.64.119
+ssh -o ServerAliveInterval=30 10.174.64.188
+Release : python hold_release_jobs.py -r -j None -p 403334 -f6 -d all
+Manual Run :python update_replication_properties.py -a pub -p 410549 -pr scheduleid -vl 99
+Truncate :bq query --use_legacy_sql=false "truncate table pypl-edw-test.pp_tables.dw_customer_map"
+bq query --nouse_legacy_sql "select max(cre_ts) from pp_tables.dw_ppcard_txn"
+bq query --nouse_legacy_sql -n 1000 "select max(time_updated),count(*) from pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx"
+python ignore_restore_jobs.py -a pub -p 92262 -j 52513360 -i 8 -v
+
+-------------------------FL tables count not matching----------------------------------------------
+Check the failures "extractdatastatuscd" in "Pub&Sub jobs" run the below Restore query:
+python ignore_restore_jobs.py -a pub -p <publishid> -j <publishjobid> -i 8 -v
+python ignore_restore_jobs.py -a sub -p <publishid> -j <publishjobid> -i 8 -v -d gcs
+
+Other than FL tables needs to check 
+1. delete source 
+2. write operation in which domain, (if write operation happens inform to the user for revert)
+3. else we have to revert and do incremental from specific point
+-------------------To get into docker containers-----------------------------------------------
+docker ps
+docker exec -it 3bb5c65bdf8d /bin/bash
+cd loadsqlgenerator/service
+python3 bq_onboard_service.py -p 410540 -g None
+************* Jupyter Terminal login procedure **************
+ssh lvsdmr005.lvs.paypalinc.com 
+sudo -i -u dm_hdp_batch 
+>cd & jm
+----------------------------------------------------------
+ssh lvsdmr005
+sudo -u dm_hdp_batch -i
+Ypalyam1234567!
+ ==============================Shoe table name from view==============================
+show view <view_name>
+=================================-Take back up in Putty=================================
+bq cp pp_credit_ods_pp_tables.t_spcl_entry pp_credit_ods_pp_tables.t_spcl_entry_bkp
+=================================Temp hold============================================
+Go to Td-Simba execute DMR_RO cmd and collect the publishid and execute the below cmd
+python hold_release_jobs.py -h -j None/RITM2479460 -p 412443 -f6  -d all
+==============================Permanent hold==========================================
+python hold_release_jobs.py -h -j None/RITM2479460 -p 412443 -f47  -d all
+-----------------------------Write operation-----------------------------------------------------
+select * from pypl-edw.pp_monitor_tools.bq_objects_usage
+where project_id = 'pypl-edw' and dataset_id = 'pp_credit_ods_pp_tables' and table_id = 't_arngmt_actvty_es3x' 
+and table_operation = 'WRITE'  and compute_domain != 'ccg24-hrzana-p-data-cp' order by createtime desc limit 10
+--------------------------------Domain-------------------------
+%config PPMagics.domain="ccg24-hrzana-p-data-cp"
+-----------------------------Scheduleid----------------------------------------
+python update_replication_properties.py -a pub -p 410550 -pr scheduleid -vl 12
+-----------------------------Scheduleid----------------------------------------
+python update_replication_properties.py -a pub -p 410550 -pr scheduleid -vl 12
+=============we can check the write operation in putty by using below query====================================
+bq query --nouse_legacy_sql "
+select * from pypl-edw.pp_monitor_tools.bq_objects_usage
+where project_id = 'pypl-edw' and dataset_id = 'pp_cr_consu_di_tables' and table_id = 'fact_cr_consu_auth_us' 
+and table_operation = 'WRITE'  and compute_domain != 'ccg24-hrzana-p-data-cp' order by createtime desc limit 2"
+-----------------------Count Check in TeraData Simba-----------------------------------------------------------
+select count(*) from stg_t_bill_uslt- data sync
+--------------------------To Get tabe name from table view--------------------------------
+show view pp_engineering.fact_consu_seg_dly_snap
+select count(*) from stg_t_bill_uslt where bal_dt is null
+select extract (month from cast (cre_ts as date)), count(*) from stg_t_bill_uslt where cast (cre_ts as date) >='s0s4-01-09' group by order desc -------------------TO get DDL-------------------------------------------------------------
+show table pp_engineering.fact_consu_seg_dly_snap
+select count(*) from pp_engineering.fact_consu_seg_dly_snap where cre_ts is null
+---------------------------------------To CHeck duplicates--------------------------------
+select count(*) fp_application_id, name from pp_credit_ods_pp_tables.fs_application_data group fp_application_id,name having count(*) > 1
+=============================Release=======================================================
+python hold_release_jobs.py -r -j RITM2479460 -p 413215 -f6 -d all
+=================================Check TD data Count in Td-Simba=================================
+select count(*) from pp_credit_ods_gpl_bnk_tables.gpl_critical_variables_uslt
+=================================Check BQ data Count in Putty=================================
+bq show pp_credit_ods_pp_tables.t_spcl_entry | head
+bq query --nouse_legacy_sql -n 1000 "select count(*) from pp_credit_ods_gpl_bnk_tables.t_arngmt_actvty_prop_uslt"
+=============================full refresh=============================================
+%%oracle -s dmr_ro
+select * from sd_batch.syncpublishjob where
+publishid in (299999,412445	)
+--objectdesc like '%dim_cr_acct' 
+--and holdflag in (0,66)
+order by publishjobid desc
+fetch first 10 rows only
+=====================================Query for Deletes======================================================
+%%teradata_simba
+SELECT USERNAME , AcctStringDate , objectdatabasename, objecttablename, queryband, STATEMENTTYPE, querytext
+FROM pp_monitor_tools.dbqlogtbl_hst tbl
+JOIN
+(
+SEL objectdatabasename, objecttablename, procid, queryid, thedate
+FROM pp_monitor_tools.dbqlobjtbl_hst
+WHERE trim(objectdatabasename) || trim('.') || trim (objecttablename) like ('pp_credit_ods_pp_tables.t_arngmt_actvty_denx')
+GROUP BY 1,2,3,4,5) obj
+ON obj.queryid = tbl.queryid
+AND obj.procid = tbl.procid
+AND obj.thedate = tbl.thedate
+WHERE tbl.thedate > '2022-01-01'
+and statementtype in ('DELETE')
+--and username = 'PP_ADM'
+--AND USERNAME LIKE 'pp\_ADM%' ESCAPE '\' ----<remove space>
+order by AcctStringDate desc
+================================To sync view====================================
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "create or replace view pypl-edw-test.pp_credit_ods_gpl_bnk_engineering_views.stg_t_spcl_entry_uslt
+as select * from  pypl-edw-test.pp_credit_ods_gpl_bnk_tables.stg_t_spcl_entry_uslt;"
+============================Deploy the views in pre prod=================================================================
+Prod     : bq show pypl-edw:pp_batch_views.dim_rsk_cust_entity_map_v2
+Pre Prod : bq show pypl-edw-test:pp_batch_views.dim_rsk_cust_entity_map_v2
+
+bq query --nouse_legacy_sql --project_id=pypl-edw-test -n 1000 "create or replace view pypl-edw-test:pp_batch_views.dim_rsk_cust_entity_map_v2 as select * from 
+pypl-edw-test:pp_tables.dim_rsk_cust_entity_map_v2"
+================================deploy views ====================================
+mandatory checks while creating views in BQ:
+1.view should present in TD
+2.table available in bq
+3.dmr enabled
+4.ddl present in "bqms_output"
+ then only we can proceed with deploying the views
+ 
+bq query --nouse_legacy_sql "create or replace view <View_Name> as select * from pp_credit_ods_pp_tables.t_spcl_entry"
+bq query --nouse_legacy_sql "create or replace view pp_credit_ods_gpl_access_views.t_spcl_entry as select * from pp_credit_ods_pp_tables.t_spcl_entry"
+=============================Creating the views======================================================
+1. Check the views in prod/Pre-Prod
+bq show pypl-edw-test:pp_cr_merch_di_access_views.fact_cr_merch_cntrct
+bq show pypl-edw:pp_cr_merch_di_access_views.fact_cr_merch_cntrct
+
+2. Creation Views in prod/Pre-Prod
+Prod:
+bq query --nouse_legacy_sql "create or replace view pp_cr_merch_di_access_views.fact_cr_merch_cntrct as select * from pp_cr_merch_di_tables.fact_cr_merch_cntrct"
+
+Pre-Prod:
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "create or replace view pypl-edw-test.pp_cr_merch_di_access_views.fact_cr_merch_cntrct
+as select * from  pypl-edw-test.pp_cr_merch_di_tables.fact_cr_merch_cntrct;"
+
+3. Cross check the columns
+bq show pypl-edw-test:pp_cr_merch_di_access_views.fact_cr_merch_cntrct
+bq show pypl-edw:pp_cr_merch_di_access_views.fact_cr_merch_cntrct
+===================Restore ============================================= 
+python ignore_restore_jobs.py -a pub -p <publishid> -j <publishjobid> -i 8 -v
+python ignore_restore_jobs.py -a sub -p <publishid> -j <publishjobid> -i 8 -v -d gcs
+*************************************DDL (change the column from pre prod to prod)**********************************************************
+bq show pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp | head
+bq show pypl-edw:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp | head
+
+1. Check Diff:
+	https://www.diffchecker.com/text-compare/
+	
+2. Copying main table to backup table:
+bq cp -a pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp_bkp
+
+3. Check the count for both the tables:
+bq show pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp | head
+bq show pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp_bkp | head
+
+4. Drop the table:
+bq query --nouse_legacy_sql -n 500 "drop table pypl-edw-test.pp_credit_ods_us_tables.t_cntrc_tmplt_lkp"
+
+5. Copying the table Prod to pre prod:
+bq cp -a pypl-edw:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp
+
+6. Check & Confirm the count for both the tables:
+bq show pypl-edw-test:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp | head
+bq show pypl-edw:pp_credit_ods_us_tables.t_cntrc_tmplt_lkp | head
+
+############################Change data type of the column#######################
+=> Get approval
+=> Check count & Column
+STEP 1: Check the data type of column "origntn_curr_pln_usd_conv_rate" in pre-prod and Prod
+	bq show pypl-edw:pp_cr_consu_di_working.wrk_fact_gpl_orig_rpmt_schd_it3x
+	bq show pypl-edw-test:pp_cr_consu_di_working.wrk_fact_gpl_orig_rpmt_schd_it3x
+ 
+STEP 2 : Get the ddl from this command(Big Query(BQMS))
+	select ddl from pypl-edw.pp_cr_consu_di_working.INFORMATION_SCHEMA.TABLES where table_name='wrk_fact_gpl_orig_rpmt_schd_it3x' (or/and)
+	select ddl from pypl-edw-test.pp_cr_consu_di_working.INFORMATION_SCHEMA.TABLES where table_name='wrk_fact_gpl_orig_rpmt_schd_it3x'
+ 
+STEP 3 : Update the column as per the request "FLOAT64" to "BIGNUMERIC"
+	origntn_curr_pln_usd_conv_rate FLOAT64 NOT NULL, => origntn_curr_pln_usd_conv_rate BIGNUMERIC NOT NULL,
+
+STEP 4: And execute below query with the ddl in both prod and pre prod
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "CREATE or replace TABLE pp_cr_consu_di_working.wrk_fact_gpl_orig_rpmt_schd_it3x  (or/and)
+bq query --nouse_legacy_sql --project_id=pypl-edw-test -n 1000 "CREATE or replace TABLE pp_cr_consu_di_working.wrk_fact_gpl_orig_rpmt_schd_it3x
+(
+cr_acct_key STRING,
+tenant_acct_id STRING,
+schd_rpmt_typ STRING,
+schd_rpmt_cnt INT64,
+schd_rpmt_dt STRING,
+schd_rpmt_amt STRING,
+origntn_curr_pln_usd_conv_rate BIGNUMERIC NOT NULL,
+cntry_code STRING NOT NULL,
+schd_rpmt_typ_cd STRING,
+cr_prod_key INT64
+)
+CLUSTER BY cr_acct_key, schd_rpmt_dt, cr_prod_key"
+
+STEP 5: Check and confirm prod and pre prod
+	bq show pypl-edw:pp_cr_consu_di_working.wrk_fact_gpl_orig_rpmt_schd_it3x
+	bq show pypl-edw-test:pp_cr_consu_di_working.wrk_fact_gpl_orig_rpmt_schd_it3x
+
+**********************DDL (DDL sync for below tables b/w TD and BQ Prod)******************************
+Jupyter:
+show view pp_credit_ods_gpl_pii_access_views.gpl_denx_regs_to_uws_sic_response
+
+Putty:
+bq show pp_credit_ods_gpl_pii_access_views.gpl_denx_regs_to_uws_sic_response
+
+Check the diff: Confirm the missing details
+https://www.diffchecker.com/text-compare/
+
+Run the below query in Putty:
+For TD and BQ Prod:
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "create or replace view pypl-edw.pp_credit_ods_gpl_pii_access_views.gpl_denx_regs_to_uws_sic_response
+as select * from  pypl-edw.pp_credit_ods_pp_tables.gpl_denx_regs_to_uws_sic_response;"
+ 
+For TD and BQ Pre-Prod:
+bq query --nouse_legacy_sql --project_id=pypl-edw-test -n 1000 "create or replace view pypl-edw-test.pp_credit_ods_gpl_pii_access_views.gpl_denx_regs_to_uws_sic_response
+as select * from  pypl-edw-test.pp_credit_ods_pp_tables.gpl_denx_regs_to_uws_sic_response;"
+ 
+Check the updated details:
+bq show pypl-edw:pp_credit_ods_gpl_access_views.gpl_denx_regs_to_uws_sic_response
+***********(View sync from TD to BQ)*****************************************
+1)check the DDL structure in both TD and BQ
+2)Compare both the structure for any missing column in BQ
+3)Run below query to refresh the views and sync the DDL between TD and BQ
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "create or replace view pypl-edw-test.pp_credit_ods_gpl_bnk_engineering_views.stg_t_spcl_entry_uslt
+as select * from  pypl-edw-test.pp_credit_ods_gpl_bnk_tables.stg_t_spcl_entry_uslt;"
+4)Run 'BQ show view' and validate if the missing column is updated in BQ
+ 
+Note : If the view is not getting the DDL structure get the DDL from BQMS
+****************************************swapping a simba-bq table*******************************************************************************
+Scenario: 
+A column has missed while enabling replication. Due to which history data for specified column has lost. 
+Action: 
+Need to extract Hist data from simba into _parallel and swapping with target table. Make sure the missed column is present in _parallel table 
+----------------------------------------------------------------------------------
+%%oracle -s dmr_ro
+select * from sd_batch.syncpublishjob where
+publishid in (299999,412445	)
+--objectdesc like '%dim_cr_acct' 
+--and holdflag in (0,66)
+order by publishjobid desc
+fetch first 10 rows only
+--------------------------------------------------------------------------------
+ssh lvsdmr005
+sudo -u dm_hdp_batch -i
+ 
+ 
+ TERMINAL L2 SCRIPT:
+        cd dmr-update/scriptsl2
+        sh dmr-wrap-update.sh vinravichandran 416855
+ 
+ 
+IGNORE QUIREY (jm):::::::::::
+         1) python ignore_restore_jobs.py -a sub -p 416855 -j 23999439 -i 8 -d gcs -v
+         2) python ignore_restore_jobs.py -a pub -p 416422 -j 50457469-50457470 -i 8 -v
+ 
+ 
+HOLD OR RELEASE QUERY (jm)::::::::
+ 
+                    python hold_release_jobs.py -r -j None -p 421049 -f109 -d gcs
+                    python hold_release_jobs.py -h -j None -p 412443 -f6  -d gcs
+ 
+ 
+ 
+RESTART:::::::::::::(in jm)
+        python job_restart.py -p 416891 -d gcs -a sub -s FAIL
+        python job_restart.py -p 416855 -d pub -s FAIL
+ 
+TRIGGER IN DMR::::::::::: (jm)
+ 
+python update_replication_properties.py -a pub -p 92944 -pr scheduleid -vl 12 -d gcs
+-----------------------------------------------------------------------------------------
+gsutil cp -r gcs_bucket .
+cd cloud_ops/BQAutoMigration/cli/tools
+gsutil cp -r /ndisk/load_module/bqloadautomation/loadsqlgenerator/out/simba/pp_credit_ods_us_tables/t_chd_base_seg2/incr/_config .
+gsutil ls gs://pypl-bkt-prd-row-stg-edw/ppcetl/pp_credit_ods_pp_tables/t_arngmt_actvty_fr/incremental/**
+history | grep "gsutil rm -r gs://pypl-bkt-prd-row-stg-edw/ppcetl/pp_credit_ods_pp_tables/t_arngmt_actvty_fr/incremental/_config"
+bq query --use_legacy_sql=false "INSERT INTO pypl-edw.pp_credit_ods_pp_tables.t_bill_denx
+select * from pypl-edw.pp_credit_ods_pp_tables.t_bill_denx_cloudops_bkp;"
+bq cp pp_credit_ods_pp_tables.t_arngmt_actvty_fr pp_credit_ods_pp_tables.t_arngmt_actvty_fr_cloudops_bkp
+bq query --nouse_legacy_sql -n 1000 " select max(time_updated) from pp_credit_ods_pp_tables.t_arngmt_actvty_fr;"
+-------------------------------------------------------------------------------------------------
+insert into tablename
+select 
+col1
+,col2
+,col3
+from tablename
+ 
+bq query --nouse_legacy_sql " insert into pypl-edw.pp_credit_ods_pp_tables.t_arngmt_actvty_es3x
+select
+arngmt_actvty_tid
+,arngmt_actvty_id
+,lead_co_mne
+,branch_co_mne
+,src_prcss_dt
+,t24_co_id
+,arngmt_id
+,activity
+,effective_date
+,trade_date
+,alternate_id
+,remarks
+,arrangement_link_type
+,master_arrangement
+,product
+,currency
+,channel
+,arr_company_code
+,linked_activity
+,secondary_type
+,orig_contract_date
+,master_aaa
+,rev_master_aaa
+,adjustment
+,txn_amount
+,txn_amount_lcy
+,txn_exch_rate
+,txn_contract_id
+,txn_system_id
+,exposure_date
+,advice_no
+,activity_class
+,processing_mode
+,auto_run
+,sim_run_ref
+,orig_txn_amt
+,orig_txn_amt_lcy
+,ext_event_ref
+,product_variation
+,pricing_selection
+,pricing_plan
+,reason
+,event_id
+,rewards_arr_id
+,org_system_date
+,closure_reason
+,cr_opportunity
+,stmt_nos
+,record_status
+,curr_no
+,inputter
+,date_time
+,authoriser
+,co_code
+,dept_code
+,auditor_code
+,audit_date_time
+,branch
+,line_of_business
+,infa_prcss_id
+,time_created
+,time_updated
+,cr_asset_owner_id
+,prchs_price_ratio
+,sls_txn_id
+from pypl-edw.pp_credit_ods_pp_tables.t_arngmt_actvty_es3x_bkp"
+-------------------------------------------------------------------------------
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "CREATE OR REPLACE table pp_credit_ods_pp_tables.t_acct_asset_xfer_fee_bal_fn_de1x
+(
+  acct_asset_xfer_fee_bal_sid INT64 NOT NULL,
+  src_prcss_dt DATE NOT NULL,
+  upd_ts DATETIME,
+  PRIMARY KEY (src_prcss_dt, cr_acct_id, loan_id, asset_xfer_id, fee_type, time_updated) NOT ENFORCED
+)
+PARTITION BY src_prcss_dt
+CLUSTER BY cr_acct_id, loan_id, asset_xfer_id, fee_type;"
+------------------------------Missing----------------------------------------------------
+Table,Columns are Missing in BQ Pre-Prod. Can anyone do syncup for BQ_preprod and BQ_Prod
+
+
+-----------------------------Changing the sheduled id-----------------------------------
+%%oracle -s dmr_ro
+select * from sd_batch.syncsystemobjectupdate where objectdesc like 'ois_fdr.t_chd_base_seg2'
+
+====================Queries to run to make the column sync between prod and prepod====================
+bq cp -a pypl-edw-test:pp_cr_consu_di_tables.fact_gpl_appl pypl-edw-test:pp_cr_consu_di_tables.fact_gpl_appl_bkp
+bq query --nouse_legacy_sql -n 500 "drop table pypl-edw-test.pp_cr_consu_di_tables.fact_gpl_appl"
+bq cp -a pypl-edw:pp_cr_consu_di_tables.fact_gpl_appl pypl-edw-test:pp_cr_consu_di_tables.fact_gpl_appl
+bq query --nouse_legacy_sql -n 500 "truncate table pypl-edw-test.pp_cr_consu_di_tables.fact_gpl_appl"
+----------------------------------------------------------------------------------
+No deletes in source, data lost, we are following these steps in order to sync.
+1. Hold 6 oracle-simba and oracle - gcs pipeline. 
+2. Release simba-bq pipeline
+3. Trigger a job simba to BQ
+4. monitor if data is loading or not. Let me once if not loaded. 
+----------------------------------------------------------------------------------
+cd dmr-update/scriptsl2/
+sh dmr-update.sh 415831
+gsutil cp _HISTORY_DONE gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/wc_accounting/
+Pretty Json:
+bq show -j --format=prettyjson ccg24-hrzana-p-data-cp:gcf-ingest-simba-pp_credit_ods_pp_tables-wc_accounting-incremental-1900-01-01-700-_SUCCESS026f0035-43df-4a54-a1a8-2289c7f000a7|tail
+python ignore_restore_jobs.py -a pub -p 406309 -j 51645666 -i 8 -v
+
+https://paypal-my.sharepoint.com/:v:/p/rahshaik/ESyjD7dn5p1Ik76gcUFi3bEBncQHq1u5kpnQcIRKf-rjgQ?referrer=Teams.TEAMS-ELECTRON&referrerScenario=MeetingChicletGetLink.view.view
+******************************************Swap the BQ tables****************************************** 
+gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry/
+pp_credit_ods_pp_tables.t_spcl_entry
+ 
+5224513348
+ 
+bq query --nouse_legacy_sql -n 1000 "Alter table pp_credit_ods_pp_tables.t_spcl_entry rename to t_spcl_entry_old"
+bq query --nouse_legacy_sql -n 1000 "Alter table pp_credit_ods_pp_tables.t_spcl_entry_parallel rename to t_spcl_entry"
+----------------------------
+bq cp -a pp_credit_ods_pp_tables.t_spcl_entry pp_credit_ods_pp_tables.t_spcl_entry_old
+drop and create
+bq cp -a pp_credit_ods_pp_tables.t_spcl_entry_parallel pp_credit_ods_pp_tables.t_spcl_entry
+--------------------------------
+Note : 1)make sure the table is not present in BQ (pp_credit_ods_pp_tablesfraud_dash_daily_tpv_l2_old)
+       2)check the bq show counts after altering the tables
+
+gsutil cp -r gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry_parallel/incremental/_config .
+Remove History done file from _parallel
+gsutil ls -l gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry_parallel/_HISTORY_DONE
+gsutil rm gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry_parallel/_HISTORY_DONE
+Clear the original GCS Bucket
+gsutil -m rm -r gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry/
+Move the GCS Bucket parallel to Original
+gsutil cp -r gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry_parallel gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry
+gsutil -m rm -r gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry/_backlog
+Copy the SQL and edit it to Original tablename
+gsutil cp -r gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry/incremental/_config .
+gsutil cp -r _config gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry/incremental
+Edit the TGTObjectdesc to Original tablename in DMR for _parallel table and release it
+gsutil cp _HISTORY_DONE gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_spcl_entry
+Trigger DMR run make sure new run is going fine till BQ Original table and validation matched for original table
+./val_result.sh -d pp_credit_ods_pp_tables -t t_spcl_entry
+*********************************************************************************************************************
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "CREATE  or REPLACE TABLE `pypl-edw`.pp_credit_ods_pp_stage.stg_cr_merch_app_dcsn_ofr_var
+
+...................................
+Backup and truncate
+ 
+bq cp -a pp_interim.ois_stg_wtransaction_p2_analys_prep pp_interim.ois_stg_wtransaction_p2_analys_prep_cloudops_bkp
+ 
+  (note: bq cp -a tablename_tablename_backupname)
+  -> then check the table size of the originl and backup using bq show command if equal then
+ 
+  -> truncate the original table using below command
+bq query --use_legacy_sql=false "truncate table pp_interim.ois_stg_wtransaction_p2_analys_prep"
+ 
+   (note: bq query --use_legacy_sql=false "truncate table tablename)
+---------------------------Priority ---------------------------------------------------
+python update_job_properties.py -a pub -p 401582 -j 51657415 -pr priority -vl 2
+python update_job_properties.py -a sub -p 405152 -j 24493465 -pr priority -vl 2 -d gcs
+----------------------------Manual onboarding--------------------------------------------------
+/home/bqloadautomation/loadsqlgenerator/out/simba/pp_oap_qv_ref_tables_t/prm2_ftable/
+docker cp 3bb5c65bdf8d:/home/bqloadautomation/loadsqlgenerator/out/simba/pp_credit_ods_us_tables/t_merch_cntrc_trckg/incr/_config .
+gsutil cp -r _config gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_us_tables/t_merch_cntrc_trckg/incremental/_config
+gsutil cp _HISTORY_DONE gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_us_tables/t_merch_cntrc_trckg
+----------------------------CREATE or replace TABLE---------------------------------------------------------------------
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "CREATE or replace TABLE pp_credit_ods_pp_stage.stg_accounts
+------------------------------------------------------------------------------------------------------------------------
+>>>Please enable incremental/daily and history data replication for the below tables.
+all the new replication enablement's should be reviewed and approved by DBA team. Please check with DBA team on this.
+======================Custom DDL=========================================
+Step 1 - Hold table in DMR to 6 (temporary hold)
+Step 2 - gcp1 (All VM's List - Tables replication procedure - Payments and Data Transformation - Global Site (paypalcorp.com))
+Step 3 - sudo -i -u dm_hdp_batch
+Step 4 - zkcli
+Step 5 - get /sd_config/prod/schema/ddl/simbagcs.pp_tables.tld_attack_case_ebay.415104.ddl
+delete /sd_config/prod/schema/ddl/simbagcs.pp_tables.tld_attack_case_ebay.415104.ddl
+check and delete the file.
+then quit
+Step 6 - cd /tmp
+Step 7 - vi simbagcs.pp_tables.tld_attack_case_ebay.415104.ddl
+then show table dbname.tablename
+
+like show table pp_sd_stage.tld_attack_case_ebay
+copy the script and remove the dbname in firstline and paste in the file
+
+Step 8 - zkcli create /sd_config/prod/schema/ddl/simbagcs.pp_tables.tld_attack_case_ebay.415104.ddl "`cat simbagcs.pp_tables.tld_attack_case_ebay.415104.ddl`"
+Step 9 - change the syncpub and syncpubjob customddl from 0 to 1 then release the table from temp hod (Hold=6)
+--------------------Duplicate---------------------------------
+bq query --nouse_legacy_sql "select d360_process_id, count(*) from pp_credit_ods_us_tables.mntry_dtl_xcycl group by d360_process_id having count(*)>1"
+##################################BQ Count High######################################################
+pp_credit_ods_us_tables.mntry_dtl_xcycl
+oracle-simba and oracle-gcs => 92598,414058
+simba-BQ => 413854	
+
+Step-1
+Check the TD & BQ Count, 
+If BQ Count is high follow the below steps
+
+Step-2
+Check Write, Delete, Update Operations & enddeltadescval should matched
+bq query --nouse_legacy_sql "
+select * from pypl-edw.pp_monitor_tools.bq_objects_usage
+where project_id = 'pypl-edw' and dataset_id = 'pp_credit_ods_us_tables' and table_id = 'mntry_dtl_xcycl' 
+and table_operation = 'WRITE'  and compute_domain != 'ccg24-hrzana-p-data-cp' order by createtime desc limit 2"
+
+Step-3
+Hold oracle-simba and oracle-gcs
+python hold_release_jobs.py -h -j RITM1991919 -p 92598 -f6 -d all
+python hold_release_jobs.py -h -j None -p 414058 -f6 -d all
+
+Step-4
+release simba-BQ
+python hold_release_jobs.py -r -j None -p 413854 -f66 -d all
+
+Step-5
+simba-BQ: trigger a run manually
+python update_replication_properties.py -a pub -p 413854 -pr scheduleid -vl 12
+Check the Pub & Sub jobs
+python update_replication_properties.py -a pub -p 413854 -pr scheduleid -vl 2
+
+Step-6
+To copy history done file, if already present not needed.
+cd cloud_ops/BQAutoMigration/cli/tools
+gsutil cp _HISTORY_DONE gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/mntry_dtl_xcycl/
+
+Step-7
+hold the simba-bq table 
+python hold_release_jobs.py -h -j None -p 413854 -f66 -d all
+
+Step-8
+release oracle-simba and oracle-gcs
+python hold_release_jobs.py -r -j RITM1991919 -p 92598 -f6 -d all
+python hold_release_jobs.py -r -j None -p 414058 -f6 -d all
+
+Step-9
+oracle-simba and oracle-gcs: trigger a run manually
+python update_replication_properties.py -a pub -p 92598 -pr scheduleid -vl 12
+python update_replication_properties.py -a pub -p 414058 -pr scheduleid -vl 12
+
+Check the Pub & Sub jobs and Revert publishid
+python update_replication_properties.py -a pub -p 92598 -pr scheduleid -vl 19
+python update_replication_properties.py -a pub -p 414058 -pr scheduleid -vl 99
+********************FL Table Onboarding process********************
+1. Check Triangular query, table won't be present
+2. Check table size it should be less then 100GB
+	show table pp_interim.intrm_fact_cust_prfl_mth_snap_fraud_ctrl
+3. Go to Putty and run 
+	bq show pp_interim.intrm_fact_cust_prfl_mth_snap_fraud_ctrl
+4. Run To get pub and sub id's and post into "SIMBA Exit Working Session" team
+5. Run show table command and find "Decimal" & "Unicode" Yes/No 
+6. Update Onboarding xl with "Decimal" & "Unicode" (Yes/No)=> save & upload in Jupyter.
+7. Upload Onboarding xl and restart => Go to end and find Pub & Sub commands
+8. Go to terminal at livedb => Copy/Past in to terminal => Commit; [After copy/past]
+9. Run Triangular query and check for each table, it should be "109" then release it to "0"
+10. Run Pub & Sub jobs once it will complete 
+11. Go to Putty(cd loadsqlgenerator/service) => Run Pre-Prod/Prod/Onboarding commands
+12. Go to cd cloud_ops/BQAutoMigration/cli/tools
+	Run validate command "./val_result.sh -d pp_interim -t  intrm_actv_rcvr_sndr_seg_map" it should show Matched
+13. Kept on 500
+********************FL (one time copy the table into different target table in BQ)******************************
+1. Check Triangular query, table won't be present
+2. Check table size it should be less then 100GB
+	show table pp_interim.intrm_fact_cust_prfl_mth_snap_fraud_ctrl
+3. Go to Putty and run 
+	bq show pp_interim.intrm_fact_cust_prfl_mth_snap_fraud_ctrl
+4. Run To get pub and sub id's and post into "SIMBA Exit Working Session" team
+5. Run show table command and find "Decimal" & "Unicode" Yes/No 
+6. Update Onboarding xl with "Decimal" & "Unicode" (Yes/No)=> save & upload in Jupyter.
+7. Upload Onboarding xl and restart => Go to end and find Pub & Sub commands
+8. Go to terminal at livedb => Copy/Past in to terminal => Commit; [After copy/past]
+9. Run Triangular query and check for each table, it should be "109" then release it to "0"
+10. Run Pub & Sub jobs once it will complete 
+11. Go to Putty(cd loadsqlgenerator/service) => Run Pre-Prod/Prod/Onboarding commands
+12. Go to cd cloud_ops/BQAutoMigration/cli/tools
+	Run validate command "./val_result.sh -d pp_interim -t  intrm_actv_rcvr_sndr_seg_map" it should show Matched
+13. Run Triangular query and update to 500
+	python hold_release_jobs.py -r -j RITM2479460 -p 413231 -f500 -d all
+------------------------------------------------------------------------------------------------------------------------
+bq show pp_credit_ods_us_engineering_views.t_bnfcl_owner_role_lkp
+====================Bq is high in Source converted (66)==================================================================
+Step-1
+TD : 2921553
+BQ : 2921561 <= High
+
+Step-2
+No Deletes: Fetched 0 out of 0 records
+
+Step-3
+No Write operations
+
+Step-4
+enddeltadescval	: Matched
+
+Step-5
+ron-scott-dev-qa-bq.dm_hdp_batch./x/home/dm_hdp_batch >
+lvsdmr005.lvs.paypalinc.com.dm_hdp_batch./x/home/dm_hdp_batch > aprsc
+lvsdmr005.lvs.paypalinc.com.dm_hdp_batch./x/home/dm_hdp_batch/abhijs/prod_ops_scripts > python3 hdp_enddeltadesc_upd.py <publishid> <publishjobid>
+Enter the enddeltadescval : 2024-03-01 00:00:00
+Confirmation Y/N :Y
+ 
+Steps to follow before:
+remove increment data files.
+remove backlog
+remove bq lock
+------------------------------------
+bash bq_source_conversion_latest_ois.sh --p 421473 --s ois_dom_cr_ntfy_svc.t_ntfy_req_log --d pp_credit_ods_us_tables --t t_ntfy_req_log
+cli
+sh onboarding_swapping.sh  --source ppcetl --publishid 412509 --tbl_name pp_credit_ods_pp_tables.t_cust_fr
+------------------------------------------------------------------------------------------------------------------------
+Counts: 
+SQL> select /*+ parallel(16) */ count(*) from notifdba.notif_trans_user_pref_new;
+Size: 
+SQL> select round(sum(bytes/1024/1024/1024)) size_gb from dba_segments where OWNER = 'NOTIFDBA' and SEGMENT_NAME='NOTIF_TRANS_USER_PREF_NEW';
+MIN(TIME_UPDATED):
+SQL> select /*+ parallel(16) */ min(TIME_UPDATED) from notifdba.notif_trans_user_pref_new;
+--------------------------------------SOP for validating profile table counts--------------------------------------
+=> Check in triangular query Profile table info
+ssh lvsdmr005
+sudo -u dm_hdp_batch -i
+source /etc/stampy/env
+hive
+use edw;
+-> First check the max of any audit(delta desc) column(ex: cre_ts,upd_date) in stampy
+
+select max(cre_ts) from fact_authrate_card_dtl;
+output-> 2024-02-12 06:36:46
+
+-> Next check count in hive for main table
+select count(*) from fact_authrate_card_dtl;
+output-> 
+
+->Next check count in bq with max cre_ts value
+bq query --nouse_legacy_sql "select count(*) from pp_cmt_tables.fact_authrate_card_dtl where cre_ts<='2024-02-12 06:36:46'"
+
+If count not matching, Check the Date Matching
+select min(cre_ts) from fact_authrate_card_dtl;
+bq query --nouse_legacy_sql "select min(cre_ts) from pp_cmt_tables.fact_authrate_card_dtl"
+2019-04-11T05:08:19
+2024-01-09 07:17:45
+
+bq and stampy count should match if not matched pls check min(cre_ts) for the table in stampy and bq
+if both min(cre_ts) is  matching and counts mismatched pls report  to Vinith
+select count(*),min(cre_ts),max(cre_ts) from fact_authrate_card_dtl;
+---------------------------------Year Wise Count--------------------------------------------------------------------------------------
+bq query --nouse_legacy_sql -n 1000 "select extract(year from cast(cre_ts as date)),count(*) from pp_credit_ods_pp_tables.wc_accounting  group by 1 order by 1 desc"
+
+bq query --nouse_legacy_sql -n 1000 "select extract(month from cast(cre_ts as date)),count(*) from pp_credit_ods_pp_tables.wc_accounting where cast(cre_ts as date)> '2023-01-01'  group by 1 order by 1 desc"
+
+bq query --nouse_legacy_sql -n 1000 "select extract(day from cast(cre_ts as date)),count(*) from pp_credit_ods_pp_tables.wc_accounting  group by 1 order by 1 desc"
+--------------------------------------View definition is not matching-------------------------------------------------------------
+https://github.paypal.com/BigDataInfraEng/BQAutoMigration/blob/master/output_bqms/bq-ddls/simba/pp_cr_consu_di_gpl_pii_access_views/fact_gpl_acct_mth.sql
+pp_cr_consu_di_gpl_pii_access_views.fact_gpl_acct_mth
+
+1> Check the Prod Bq & GitHub file Count, if matching infor the same else
+Prod: 
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "<Copy paste gitHub file content>"
+Pre-Prod: 
+bq query --nouse_legacy_sql --project_id=pypl-edw-test -n 1000 "<Copy paste gitHub file content>"
+
+2> Check the Prod Bq & GitHub file Count, it Should match.
+----------------------------------------------------------------------------------------------------------------------------------------
+For FL tables dummy entry in dmr jobs .
+1. Prechecks as usual
+2. Give DMR metadata insert and create ddl and lkp file using automation script, then release it (Note : pls don't perform any bq to gcs operation)
+3. Once job triggered and went to ignoreflag 1 in publishjob, then update the columns extractddlstatuscd,extractdatastatuscd,publishfinalstatuscd to DONE and ignoreflag to 0 .
+4. Once subscribejob triggered after publishjob completed , update column loaddatastatuscd to DONE for respective jobs .
+5. Then update column seqnum with the maximum seqnum value of simba to stampy and simba to horton jobs to the respective gcs to stampy and gcs to horton entries .
+6. Once all updated then proceed with bq to gcs extraction provided in the SOP .
+7. After QC check is passed in bq to gcs extract , we need to trigger the job for gcs to stampy after placing siba to stampy on hold 202421 .
+-------------------------------------------NUMERIC => BIGNUMERIC--------------------------------------------------------------------
+Step:-1
+bq cp pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx_bkp
+
+Step:-2
+bq query --use_legacy_sql=false "truncate table pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx"
+
+Step:-3
+gsutil ls -l gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_arngmt_actvty_cust_role_denx/
+cd Raham
+gsutil cp -r gs://pypl-bkt-prd-row-stg-edw/ppcetl/pp_credit_ods_pp_tables/t_arngmt_actvty_cust_role_denx/incremental/_config/*.sql .
+gsutil cp -r *.sql gs://pypl-bkt-prd-row-stg-edw/ppcetl/pp_credit_ods_pp_tables/t_arngmt_actvty_cust_role_denx/incremental/_config/
+
+Step:-4
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "<Copy Past gitHib table>"
+https://github.paypal.com/BigDataInfraEng/BQAutoMigration/blob/master/output_bqms/bq-ddls/simba/pp_credit_ods_pp_tables/t_arngmt_actvty_cust_role_denx.sql
+
+Step:-5[Insert main table to bkp table]
+bq query --use_legacy_sql=false "
+Insert into pypl-edw.pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx
+select
+cast(arngmt_actvty_cust_role_tid as BIGNUMERIC) as arngmt_actvty_cust_role_tid,
+co_code STRING,
+................
+................
+from pypl-edw.pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx_bkp;"
+
+Step-6[Check the changes in bq]
+bq show pp_credit_ods_pp_tables.t_arngmt_actvty_cust_role_denx
+*****************************************************************************************************************************************
+To copy files from Local to GCS bucket
+gsutil cp -r _config gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_us_tables/t_chd_base_seg2/incremental
+ 
+success and backfill
+gsutil ls -l gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_crpacct_rpymnt_sumry_parallel/**SUCCESS**/
+gsutil cp _SUCCESS gs://pypl-bkt-prd-row-stg-edw/simba/pp_cr_consu_di_tables/fact_gpl_advrs_actn/history/2024/03/24/00/
+gsutil cp _BACKFILL gs://pypl-bkt-prd-row-stg-edw/simba/pp_credit_ods_pp_tables/t_crpacct_rpymnt_sumry_parallel/
+
+Duplicates (PK)
+select mntry_txn_trckg_tuid,tnnt_acct_ext_id,cr_acct_uuid,count(*) from pp_credit_ods_pp_tables.t_crptxn_mntry_txn_trkg group by mntry_txn_trckg_tuid,tnnt_acct_ext_id,cr_acct_uuid having count(*)>1
+ 
+ddl from putty
+bq query --nouse_legacy_sql --format=csv "select ddl from pypl-edw.pp_access_views.INFORMATION_SCHEMA.TABLES where table_name='identity_vrf_response'"
+ 
+....................Insert from backup table....................
+bq query --use_legacy_sql=false "
+Insert into pypl-edw.pp_ss_tables.weft_record_parallel
+select
+cast(ID as NUMERIC) as ID                         
+,cast(TIME_CREATED as NUMERIC) as TIME_CREATED
+,cast(VENDOR_FILE_ID as NUMERIC) as VENDOR_FILE_ID
+from pypl-edw.pp_ss_tables.weft_record;"
+..........................
+
+To check the status of the job
+ 
+#To check status of a job id:
+
+bq show -j ccg24-hrzana-p-data-cp:gcf-ingest-simba-pp_credit_ods_pp_tables-fp_application_data_parallel-history-2023-06-09-00-_SUCCESSb5394e03-df82-44cc-9713-a95d1e2a5e74
+******************View Creation using table *********************************************************************************************
+Go to Build => Get the below table details
+ 
+pp_cr_consu_di_working.wrk_dnbe_loan_chrgoff_mthly_gb3x_01 =>
+pp_cr_consu_di_batch_views.wrk_dnbe_loan_chrgoff_mthly_gb3x_01
+
+bq query --nouse_legacy_sql --project_id=pypl-edw -n 1000 "create view <View_name> as select * from <Table_name>"
+bq query --nouse_legacy_sql --project_id=pypl-edw-test -n 1000 "create view <View_name> as select * from <Table_name>"
+
+bq show pypl-edw:pp_cr_consu_di_batch_views.wrk_dnbe_loan_chrgoff_mthly_gb3x_01
+bq show pypl-edw-test:pp_cr_consu_di_batch_views.wrk_dnbe_loan_chrgoff_mthly_gb3x_01
