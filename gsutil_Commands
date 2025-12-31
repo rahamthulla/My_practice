@@ -1,0 +1,204 @@
+# gsutil Commands Reference
+
+## Core Object Operations
+
+**cp** - Copy files and objects
+```bash
+gsutil cp file.txt gs://bucket/
+gsutil cp gs://bucket/file.txt .
+gsutil cp -r directory/ gs://bucket/
+```
+
+**mv** - Move/rename files and objects
+```bash
+gsutil mv gs://bucket/old.txt gs://bucket/new.txt
+gsutil mv file.txt gs://bucket/
+```
+
+**rm** - Remove objects and buckets
+```bash
+gsutil rm gs://bucket/file.txt
+gsutil rm -r gs://bucket/directory/
+gsutil rm gs://bucket/**
+```
+
+**ls** - List buckets and objects
+```bash
+gsutil ls
+gsutil ls gs://bucket/
+gsutil ls -l gs://bucket/
+gsutil ls -r gs://bucket/
+```
+
+## Bucket Management
+
+**mb** - Make buckets
+```bash
+gsutil mb gs://my-new-bucket
+gsutil mb -l us-east1 gs://my-bucket
+```
+
+**rb** - Remove buckets
+```bash
+gsutil rb gs://bucket-to-delete
+gsutil rb -f gs://bucket-with-objects
+```
+
+**du** - Display disk usage
+```bash
+gsutil du gs://bucket/
+gsutil du -s gs://bucket/
+gsutil du -sh gs://bucket/
+```
+
+## Synchronization
+
+**rsync** - Synchronize directories
+```bash
+gsutil rsync -r local-dir/ gs://bucket/remote-dir/
+gsutil rsync -d gs://bucket/ local-dir/
+```
+
+**sync** - One-way synchronization
+```bash
+gsutil -m rsync -r -d source/ gs://bucket/destination/
+```
+
+## Access Control & Permissions
+
+**acl** - Access control lists
+```bash
+gsutil acl get gs://bucket/object
+gsutil acl set private gs://bucket/object
+gsutil acl ch -u user@example.com:R gs://bucket/object
+```
+
+**iam** - IAM policies
+```bash
+gsutil iam get gs://bucket/
+gsutil iam set policy.json gs://bucket/
+gsutil iam ch -m user@example.com:objectViewer gs://bucket/
+```
+
+## Metadata & Configuration
+
+**stat** - Display object/bucket status
+```bash
+gsutil stat gs://bucket/object
+gsutil stat gs://bucket/
+```
+
+**setmeta** - Set metadata
+```bash
+gsutil setmeta -h "Content-Type:text/plain" gs://bucket/file.txt
+gsutil setmeta -h "Cache-Control:no-cache" gs://bucket/object
+```
+
+**cors** - Cross-origin resource sharing
+```bash
+gsutil cors get gs://bucket/
+gsutil cors set cors.json gs://bucket/
+```
+
+**lifecycle** - Object lifecycle management
+```bash
+gsutil lifecycle get gs://bucket/
+gsutil lifecycle set lifecycle.json gs://bucket/
+```
+
+**versioning** - Object versioning
+```bash
+gsutil versioning get gs://bucket/
+gsutil versioning set on gs://bucket/
+```
+
+**web** - Website configuration
+```bash
+gsutil web get gs://bucket/
+gsutil web set -m index.html -e 404.html gs://bucket/
+```
+
+## Advanced Operations
+
+**compose** - Compose objects
+```bash
+gsutil compose gs://bucket/part1 gs://bucket/part2 gs://bucket/combined
+```
+
+**cat** - Output object contents
+```bash
+gsutil cat gs://bucket/file.txt
+gsutil cat gs://bucket/file.txt | head -10
+```
+
+**hash** - Calculate hashes
+```bash
+gsutil hash file.txt
+gsutil hash gs://bucket/object
+```
+
+**signurl** - Generate signed URLs
+```bash
+gsutil signurl -d 1h private-key.json gs://bucket/object
+```
+
+## Monitoring & Logging
+
+**notification** - Pub/Sub notifications
+```bash
+gsutil notification create -t topic-name gs://bucket/
+gsutil notification list gs://bucket/
+gsutil notification delete notification-id
+```
+
+**logging** - Access logging
+```bash
+gsutil logging get gs://bucket/
+gsutil logging set on -b gs://log-bucket gs://source-bucket/
+```
+
+## Utility Commands
+
+**config** - Configuration management
+```bash
+gsutil config
+gsutil config -a  # authenticate
+gsutil config -o  # OAuth2 setup
+```
+
+**version** - Version information
+```bash
+gsutil version
+gsutil version -l  # long format
+```
+
+**help** - Command help
+```bash
+gsutil help
+gsutil help cp
+gsutil help acl
+```
+
+**update** - Update gsutil
+```bash
+gsutil update
+```
+
+## Common Flags
+
+**-m** - Multi-threaded/parallel operations
+**-r** - Recursive operations
+**-f** - Force operations (skip confirmations)
+**-q** - Quiet mode (suppress output)
+**-h** - Set headers
+**-d** - Delete extra files in destination
+**-n** - No-clobber (don't overwrite)
+**-u** - Skip files that exist and are newer
+
+## Performance Options
+
+**-o** - Set options
+```bash
+gsutil -o "GSUtil:parallel_thread_count=10" cp large-file gs://bucket/
+gsutil -o "GSUtil:sliced_object_download_threshold=50M" cp gs://bucket/large-file .
+```
