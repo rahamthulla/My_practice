@@ -1,0 +1,244 @@
+Out of 40 question 36 is correct and 4 wrong, test is passed.
+
+1>Which concept is related to the non-functional requirement of reducing inter-dependencies to prevent failures from affecting other components, as part of your design team's plan to design an application for hosting on the AWS Cloud?
+A)Segregation
+B)Integration
+C)Decoupling < Correct Answer.
+D)Aggregation
+
+2>Which AWS product offers a unified user interface, facilitating the streamlined management of software development tasks in a single location, as well as rapid development, building, and deployment of applications on AWS?
+A)AWS CodeStar < Correct Answer.
+B)Amazon CodeGuru
+C)AWS CodeBuild
+D)AWS CodeArtifact
+
+3>Which design pillar should a client who has transitioned to AWS Cloud concentrate on to ensure that their systems consistently deliver business value and enhance supporting processes and procedures?
+A)Operational Excellence < Correct Answer.
+B)Reliability
+C)Scalability
+D)Automation
+
+4>If you have an application that is mission-critical and needs to be globally accessible at all times, which deployment method would you choose to use?
+A)Deployment to multiple Regions < Correct Answer.
+B)Deployment to multiple edge locations
+C)Deployment to multiple Availability Zones
+D)Deployment to multiple Data Centers
+
+5>When adhering to the "design for failure and nothing will fail" principle in system design, which three AWS services or features could be beneficial? Please select three from the options provided.
+A)Pay as you go
+B)Availability Zones < Correct Answer.
+C)Regions < Correct Answer.
+D)Elastic Load Balancer < Correct Answer.
+
+6>Which AWS database service would be the most appropriate for migrating millions of customer financial transaction data from an on-premise mainframe system to a non-relational database, with the requirement of high performance for data retrieval and analytics?
+A)Amazon DynamoDB < Correct Answer.
+B)Amazon RDS
+C)Amazon RedShift
+D)Amazon ElastiCache
+
+7>According to the AWS Well-Architected Framework, how can a startup with multiple AWS environments effectively manage its users and resources without impacting costs?
+A)Provisioning resources and compute capacity for future growth.
+B)Create multiple unique IAM users with administrator access for each functional group of the company.
+C)Use of AWS CloudFront template versions and revision controls to keep track of the dynamic configuration changes.
+D)Use AWS Organizations with respective OUs that differentiate billing across the company's AWS account. < Correct Answer.
+
+8>Which AWS services could a research firm utilize for expert help in deploying a high-performance computing system in the AWS cloud for their scientific research activities? Please provide the options.
+A)AWS Professional Services < Correct Answer.
+B)AWS Support
+C)AWS Managed Services
+D)AWS IQ < Correct Answer.
+
+9>Which of the following is not an advantage for a real estate online marketplace start-up planning to transition to the cloud?
+A)Benefit from massive economies of scale.
+B)Install on a company's own servers. < Correct Answer.
+C)Go global in minutes.
+D)Stop guessing capacity.
+
+10>Which of the given options does NOT represent a Security design principle in the AWS Well-Architected Framework for designing solutions in AWS?
+A)Enable Traceability.
+B)Apply Security only at the edge of the network. < Correct Answer.
+C)Protect Data at rest and in transit.
+D)Implement a strong Identity foundation.
+
+11>In the context of serverless services like AWS Lambda, how does the Shared Responsibility Model apply?
+A)The user is responsible for IAM roles and identities that can invoke the AWS Lambda functions. < Correct Answer.
+B)Amazon has overall responsibility for the infrastructure, including IAM roles and identities that can invoke functions.
+C)The user is responsible for the security and access to the instances that handle the compute capacity.
+D)Amazon is responsible for any malicious code written in the IDE and can terminate any rogue activity.
+
+12>Identify two statements that correctly describe a function of AWS Secrets Manager.
+A)Facilitates the embedding of authentication information in code during runtime.
+B)Encrypts authentication information in code, ensuring that it is unreadable, that is, not in plain-text.
+C)Replaces the need to hardcode authentication credentials in code. < Correct Answer.
+D)Makes it possible to include an API call in code that retrieves authentication information from a central repository. < Correct Answer.
+
+13>Which of the following can be set up to improve security at the subnet level?
+A)Security Group
+B)Virtual Private Cloud (VPC)
+C)Configure transitive VPC peering
+D)NACL (Network Access Control List)  < Correct Answer.
+
+14>From the options provided below, which one is a responsibility of the customer under the AWS Shared Responsibility Model?
+A)Patching of guest OS deployed on Amazon EC2 instance. < Correct Answer.
+B)Patching of host OS deployed on Amazon S3.
+C)Logical Access controls for underlying infrastructure.
+D)Physical security of the facilities.
+
+15>From the options given, which service can the Security team utilize to probe and analyze the root cause of potential security threats on AWS resources?
+A)AWS Security Hub
+B)Amazon Detective < Correct Answer.
+C)AWS Shield
+D)Amazon GuardDuty
+
+16>Among the options provided, which tool can be utilized to facilitate authentication for a substantial number of users accessing an Amazon S3 bucket via a mobile application?
+A)AWS STS
+B)AWS IAM user
+C)Amazon Cognito < Correct Answer.
+D)AWS IAM group
+
+17>From the options provided below, which two resources can AWS WAF integrate with to protect web applications against common web exploits?
+A)Static Website hosted on Amazon S3 bucket.
+B)Amazon CloudFront < Correct Answer.
+C)Internet Gateway
+D)Web server hosted on Amazon EC2 instance. < Correct Answer.
+
+18>When a new department has been added to the organization and the administrator is tasked with setting up access permissions for a group of users with diverse roles and access requirements, what is the recommended strategy for granting access?
+A)Users should have no access and be granted temporary access on the occasions that they need to execute a task.
+B)After gathering information on their access needs, the administrator should allow every user to access the most common resources and privileges on the system.
+C)The administrator should grant all users the same permissions and then grant more upon request.
+D)The administrator should grant all users the least privilege and add more privileges to only to those who need it.  < Correct Answer.
+
+19>From the options provided below, which one accurately describes the features and capabilities that AWS Network Firewall offers for enhancing network security in an Amazon Web Services (AWS) environment?
+A)AWS Network Firewall is a managed, stateless firewall for securing your Amazon VPC
+B)AWS Network Firewall offers load balancing and auto-scaling for applications within Amazon VPCs
+C)AWS Network Firewall provides protection against Distributed Denial of Service (DDoS) attacks
+D)AWS Network Firewall is a managed, stateful firewall for securing your Amazon VPC < Correct Answer.
+
+20>From the options provided below, which two statements accurately describe the process of provisioning a security certificate from AWS Certificate Manager (ACM)?
+A)A security certificate issued in ACM can only be applied to one AWS resource.
+B)ACM-issued security certificate cannot be applied to an Application load balancer.
+C)To verify a security certificate, a CNAME record would need to be created. < Correct Answer.
+D)Third-party security certificates cannot be applied to AWS resources.
+E)To verify a security certificate3, the administrator would need to acknowledge a verification email sent to an address of their choice. < Correct Answer.
+
+21>In the course of an audit, the audit committee recommends that an organization centrally oversee all VPC security groups and WAF rules in their AWS setup. With multiple AWS accounts in place, what steps can be taken to accomplish this task?
+A)AWS Security Hub
+B)AWS Identity and Access Management (IAM)
+C)AWS Firewall Manager < Correct Answer.
+D)Amazon Cloud Directory
+
+22>From the options provided, which three security requirements are handled by AWS? Please select three answers from the options below.
+A)Hardware patching < Correct Answer.
+B)Password Policies
+C)User permissions
+D)Physical security < Correct Answer.
+E)Disk disposal < Correct Answer.
+
+23>An engineering company is in the process of setting up numerous servers across various subnets within Amazon VPC. The IT department is currently evaluating the optimal number of route tables that can be accommodated per VPC. How many route tables are officially supported per Amazon VPC?
+A)50
+B)100 < Correct Answer.
+C)200
+D)20
+
+24>From the options provided below, which one accurately depicts a typical scenario where the AWS CodePipeline service could be effectively utilized?
+A)To orchestrate and automate the various phases involved in the release of application updates in-line with a predefined release model. < Correct Answer.
+B)To compose code in an integrated development environment that enables developers to run, test and debug components of a dynamic microservice.
+C)To compile and deploy a microservice onto Amazon EC2 instances or AWS Lambda functions.
+D)To securely share code, collaborate on source code, version control and store binaries on an AWS fully-managed platform that scales seamlessly.
+
+25>What AWS service could be used to effectively distribute video content to users worldwide for a video-based application that you plan to deploy on the AWS Cloud?
+A)Amazon S3
+B)Amazon SES
+C)Amazon Cloudtrail
+D)Amazon CloudFront < Correct Answer.
+
+26>The e-commerce web application being developed on an EC2 instance is currently facing performance issues during browsing and searching activities when multiple heavy load use-cases are being executed simultaneously. The application monitoring tools have identified a bottleneck in the web tier. In order to address this issue, a decision has been made to refactor the application code by separating the web tier components from the resource-intensive tasks related to processing orders. Which AWS service would be suitable to facilitate this modification?
+A)Amazon Kinesis Streams
+B)AWS Auto Scaling
+C)AWS Elastic Load Balancing
+D)Amazon SQS < Correct Answer.
+
+27>You have been assigned the responsibility of constructing and implementing a machine-learning model to forecast customer preferences for an e-commerce platform. What AWS service offers comprehensive machine learning capabilities?
+A)Amazon Kendra
+B)Amazon SageMaker < Correct Answer.
+C)Amazon Lex
+D)Amazon Polly
+
+28>I am hosting two applications, "Image Processing" and "Order Processing," on separate EC2 servers within an Auto Scaling Group on my website. What is the most effective method to grant user access to either of these applications on the website?
+A)I can use the Network Load Balancer that will route requests to different applications depending on the user's request.
+B)I can provide the public DNS URL of each of my servers where my application is hosted.
+C)I can use the Classic Load Balancer that will route requests to different applications depending on the user's request.
+D)I can use the Application Load Balancer that will route requests to different applications depending on the user's request. < Correct Answer.
+
+29>For an online streaming company that is restricted from broadcasting its content in specific countries and regions worldwide, which Amazon Route 53 routing policy from the options provided would be the most appropriate to ensure their compliance?
+A)Failover
+B)Geoproximity
+C)Geolocation < Correct Answer.
+D)Multi-value answer
+
+30>Among the given statements, which ones are not accurate in relation to NoSQL databases?
+A)Amazon DynamoDB is a NoSQL database that supports atomicity, consistency, isolation, and durability (ACID) transactions.
+B)They are not relational.
+C)They need to have a well defined schema. < Correct Answer.
+D)NoSQL databases are horizontally scalable.
+
+31>From the options provided, which two correctly identify a difference between AWS Global Accelerator and Amazon CloudFront?
+A)For the resource endpoint, Amazon CloudFront offers static public IP addresses whilst AWS Global Accelerator does not.
+B)AWS Global Accelerator uses the Anycast techniques to accelerate latency-sensitive applications Amazon CloudFront uses Unicast.
+C)Amazon CloudFront makes use of Edge Locations and edge infrastructure, whilst AWS Global Accelerator does not.
+D)AWS Global Accelerator does not include the content caching capability that Amazon CloudFront does. < Correct Answer.
+E)AWS Global Accelerator is suitable for applications that are non-HTTP/S such as VoIP, MTTQ and gaming whereas Amazon CloudFront enhances the performance of HTTP-based content such as dynamic web applications, images and videos. < Correct Answer.
+
+32>From the options provided below, which two AWS services offer a POSIX compliant, fully managed, and cost-effective NFS file storage solution?
+A)Amazon Elastic Block Store
+B)Amazon FSx for Windows File Server
+C)AWS Elastic File System < Correct Answer.
+D)Amazon FSx for Lustre < Correct Answer.
+
+33>For a team of developers at a startup who are working on a new project requiring high levels of confidentiality and security for all development assets, and who currently store their source code and binary files on a publicly accessible open-source repository platform, which AWS service would be the most suitable for storing their source code?
+A)AWS CodeStar
+B)AWS CodeCommit < Correct Answer.
+C)AWS CodeDeploy
+D)AWS Lambda
+
+34>For an organization seeking assistance, which role does Amazon AppStream play from the options provided below?
+A)It hosts websites and web applications with high availability
+B)It provides cloud-based virtual machines for running containerized applications
+C)It automates and manages AWS resource provisioning
+D)It delivers desktop applications securely to users via streaming < Correct Answer.
+
+35>Which LightSail Wizard enables customers to "replicate a LightSail instance in EC2"?
+A)LightSail-EC2 snapshot
+B)LightSail Backup
+C)LightSail Copy
+D)Upgrade to EC2 < Correct Answer.
+
+36>Which of the following would assist a cost-conscious client in obtaining direct information about the costs associated with using AWS services, assuming they are planning to transition their on-premises workloads to AWS?
+A)AWS Cost Explorer
+B)AWS Organizations
+C)AWS Pricing Calculator < Correct Answer.
+D)AWS Budgets
+
+37>For a startup company in the e-commerce industry that is starting its cloud journey with AWS and needs advice on Cloud migration, modernization, and cost optimization in line with AWS best practices, which AWS service would be capable of fulfilling these requirements?
+A)AWS Trusted Advisor < Correct Answer.
+B)AWS Marketplace
+C)AWS Prescriptive Guidance
+D)AWS Security Center
+
+38>Which EC2 instance would be the most appropriate for an organization that has developed an event-based meme creation application, which they plan to operate continuously during a 3-month-long sporting event to allow team fans to create and share memes on social media?
+A)Spot Instances
+B)Reserved Instances
+C)On-Demand Instances < Correct Answer.
+D)Dedicated Instances
+
+39>In an AWS Organization using consolidated billing, where can a "Member AWS account" configure the delivery of a product-wise daily cost breakdown report for cost and usage analysis? Choose Two options.
+A)AWS Management Console < Correct Answer.
+B)Amazon Athena
+C)S3 bucket owned by the member account
+D)S3 bucket owned by the management account < Correct Answer.
+
+40>Which AWS service is specifically designed to meet ABC Corporation's needs for customizing billing data for various accounts, applying pricing logic, and presenting cost data based on predetermined rates for each billing group?
+A)AWS Cost Explorer
+B)AWS Billing and Cost Management
+C)AWS Billing Conductor < Correct Answer.
+D)AWS Marketplace
