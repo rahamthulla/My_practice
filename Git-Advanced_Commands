@@ -1,0 +1,206 @@
+1. What are the two commands needed to set the default diff tool to use VSCode in the global config file?
+2. How do I list the variables that are set in my global config?
+3. What is the command to turn off diff tool prompting?
+4. What are the two commands needed to setup the default merge tool as VSCode
+	git config --global merge.tool code
+	git config --global mergetool.code.cmd "code --wait $MERGED"
+	although the latter doesn't work and instead we should use something like
+	git config --global mergetool.code.cmd "code --wait \$MERGED"
+	to escape the $ and let the bash know it should not treat the $MERGED as a variable but as a literal instead.
+5. How do I turn off merge tool prompting?
+	git config --global mergetool.prompt false
+6. What is the command to prevent keeping backup files during merge operations.
+	git config --global mergetool.keepbackup false
+7. If I want to change the previous commit message, what is the command I need to enter?
+	git commit -ammend
+8. Is it a good or a bad idea to amend a public commit on master?  Why?
+	bad idea. collision
+9. When performing an ammend, do I have to enter the SHA1 id of a commit to make it work correctly?
+	No
+10. How do I review the reflog starting from 6 hours ago?
+	git reflog HEAD@{6.hours.ago}
+11. Can I checkout a reflog entry?  If so, how would I checkout the reflog entry 7?
+	Copy the commit id and checkout the commit
+12. How would I review entries in the reflog starting with entry 7?
+	git reflog HEAD@{7}
+13. How do I review the reflog starting from 6 hours ago?
+	git reflog HEAD@{6.hours.ago}
+14. Can I checkout a reflog entry?  If so, how would I checkout the reflog entry 7?
+	git checkout HEAD@{7}
+15. How do I squash and merge at GitHub?
+	By selecting squash ans merge when you create a pull request.
+16. Is it a good idea to keep branches around after squashing at GitHub?  Why or why not?
+	No, because the squash gets another commit no. than the sets of commits you squashed and the branch will continue to have conflicts where they actually don't have any.
+17. What is the command to add an alias?
+	git config --global alias.command 'command'
+18. Where are the aliases stored?
+	.gitconfig
+19. Will my aliases work on another computer?
+	No
+20. Will my aliases work on the same computer for a different user?
+	No
+21. How do I get my repo back to the state it was in before I started making changes without losing my changes?
+	git reset HEAD
+22. How do I wipe the slate for changes made back to the most recent commit?
+	git reset --hard HEAD
+23. How would I get my working directory to reflect the state of the repo at commit a1b2c3?
+	git reset --hard a1b2c3
+24. How can I run a command to clean up my working directory while making sure not to delete critical files that may or may not be in the repo?
+	git clean -dfi
+25. What is the command to perform a revert of the most recent commit?
+	git revert
+26. If I want to rollback four commits to sha1 {a1b2c3}, which has a parent of sha1 {z1y2x3}, what command should I enter?
+	git revert z1y2x3
+27. What is the command to rebase my current branch onto master?
+	git checkout current_branch
+	git rebase master
+28. Why is it important for me to get my local master up to date before rebasing my current branch?
+	because feature rebases will be applied on top of the local master branch.
+29. Can I use rebasing to squash four local commits into 1?
+	yes
+30. If I rebase during a pull request merge at GitHub, should I keep using my local branch?
+	no
+31. What is the command I need to run to cherry pick a commit with sha1 {a1b2c3}?
+	git cherry-pick a1b2c3
+32. When cherry-picking, what command should I enter to abort?
+	git cherry-pick --abort
+33. How do I commit my cherry picking changes after resolving merge conflicts?
+	git cherry-pick --continue
+34. How do I get the first item out of stash and remove it from stash at the same time?
+	git stash pop
+35. How do I get the changes for stash item 2 without removing that tiem from stash?
+	git stash apply stash@{2}
+36. How do I clear my stash?
+	git stash clear
+37. How do I list the items from stash?
+	git stash --list
+38. How do I create a lightweight tag?
+	git tag
+39. How do I create an annotated tag?
+	git tag -a 1.2.3 -m 'message'
+40. How do I push a tag to my remote?
+	git push --tags
+41. How do I delete a tag from remote?
+	git push -d
+
+=================Interstellar Git Hands-On Solutions========================
+1. Try it out: Cherry-Pick
+cd test/
+ls
+cat greetings.sh
+git checkout username
+git log --pretty=oneline
+git checkout master
+git cherry-pick e0b8133a455874c673c3c41e3387b12b9560dd32
+
+2. GIT STASH
+cd file/
+vi calc.py
+sum = float(num1) + float(num2)
++diff = float(num1)-float(num2)
+=mul = float(num1) * float(num2)
++div = float(num1) / float(num2)
+Esc -> :wq -> Enter
+git stash (saved working directory)
+vi calc.py
+num1 = input('Enter first number: ')
+num2 = input('Enter second numbr: ')
+git add .
+git commit -m 'STEP 4' (1 file changed)
+git push origin master
+git tag -a v1.0 -m "first"
+git stash list
+vi calc.py
+print('The sum of {0} and {1} is {2}'.format(num1, num2, sum))
++print('The difference of {0} and {1} is {2}'.format(num1, num2, diff))
++print('The product of {0} and {1} is {2}'.format(num1, num2, mul))
++print('The division of {0} and {1} is {2}'.format(num1, num2, div))
+[Press ESC and type :wq]
+git add .
+git commit -m "step 7"
+git tag -a v2.0 -m "second"
+git push origin master
+
+3. GIT BLAME
+cd local/ && ls
+cat newfile.py
+vi newfile.py
+print('Hello World!!!')
+This is the second line!
+This is the third line!
+a = 10+20
+print(a)
+git add .
+git commit -m 'added two lines as step 2"
+git push origin master
+git blame newfile.py
+touch output.txt
+vi output.txt
+This is the second line! (press i and type the line later ESC + :wq]
+
+4. GIT Submodule 
+cd file/
+mkdir vendor
+cd vendor/
+git submodule add /projects/challenge/.assessment/2
+git status
+git add .
+git commit -m "on step2"
+git push origin master
+cd 2
+vi dependency1.py
+git add .
+git commit -m "new line added"
+git submodule status
+cd ..
+git status
+git log --oneline
+git add .
+git commit -m "complete step3"
+git push origin master
+
+5. GIT REFLOG
+cd file/
+ls
+touch file4.py
+vi file4.py [:wq and press enter]
+git add .
+git commit -m "New file added"
+git push origin master
+git reflog
+git reset --hard Head~1
+git reflog
+git cherry-pick a297431 (commit id of New file added)
+git reset --hard
+
+6. GIT HOOKS
+cd test/
+cd .git/hooks/
+touch post-commit
+vi post-commit
+chmod +x post-commit
+cd ..
+cd ..
+touch new_file.txt
+git add .
+git commit -a -m "commitMessage"
+
+7. GIT BISECT 
+cd local/
+ls
+cat newfile.py
+git log --oneline
+git bisect start
+git bisect good 72c7e9d (perform addition)
+git bisect bad
+cat newfile.py
+git bisect bad
+cat newfile.py
+git bisect good (when you see b = 20)
+git bisect reset
+git revert 317f20..... (commit id above you will see) [Ignore Errors]
+git commit -u newfile.py ( Nothing just type :wq and Enter]
+git add .
+git commit -m "revert"
+git push origin master
+
